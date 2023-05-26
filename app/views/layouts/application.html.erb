@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hnslim</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&family=Poppins&family=Yeseva+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= render 'pages/sidebar' %>
+    <div class="main_window">
+      <div class="mobile_header" id="mobile_header" data-controller="mobile">
+        <i class="icon" data-action="click->mobile#menuClick">menu</i>
+        <%= link_to "HEAVY NIGHT", root_path, :class => "strip_link header_title" %>
+      </div>
+      <%= yield %>
+    </div>
+        
+      
+    
+    <div class="modal" id="main_modal" tabindex="-1" data-controller="modal" data-action="turbo:frame-render->modal#open turbo:submit-end->modal#close">
+      <%= turbo_frame_tag "modal" do %>
+      <% end %>
+    </div>
+    <%= turbo_frame_tag :hidden do %>
+    <% end %>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+<%= turbo_frame_tag :content do %>
+
+<%= link_to "Update From Bgg", update_games_path, data:{turbo_frame: "content"} %>
+<%= link_to "Update Details", edit_user_registration_path, data:{turbo_frame: "content"} %>
+<%= link_to "Log Out", destroy_user_session_path, :method => :delete %>
+
+<% end %>

@@ -1,0 +1,10 @@
+<%= turbo_frame_tag :content do %>
+
+  <p style="color: green"><%= notice %></p>
+  
+    <% @players.each do |player| %>
+      Name:&nbsp;<%= player.first_name %>&nbsp;<%= player.surname %><br/>
+      BGG Username:&nbsp;<%= player.bgg_username %><br/>
+    <% end %>
+
+<% end %>
