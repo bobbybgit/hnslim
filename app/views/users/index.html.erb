@@ -1,10 +1,21 @@
 <%= turbo_frame_tag :content do %>
 
   <p style="color: green"><%= notice %></p>
+  <table data-controller="table-links">
+    <tr class="header_row">
+      <th>Player</th>
+      <th>Owned</th>
+      <th>Rated</th>
+    </tr>
   
     <% @players.each do |player| %>
-      Name:&nbsp;<%= player.first_name %>&nbsp;<%= player.surname %><br/>
-      BGG Username:&nbsp;<%= player.bgg_username %><br/>
+      <tr class="data_row_clickable" id="<%= player.id %>" data-action="click->table-links#player">
+        <td><%= player.first_name %>&nbsp;<%= player.surname %></td>
+        <td><%= @collections.present? ? @collections.where(user_id: player.id).count : "0" %> </td>
+        <td><%= @ratings.present? ? @ratings.where(user_id: player.id).count : "0" %> </td>   
+      </tr>
     <% end %>
+  </table>
+
 
 <% end %>

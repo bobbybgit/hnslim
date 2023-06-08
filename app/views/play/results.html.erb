@@ -1,0 +1,17 @@
+<%= turbo_frame_tag :play_results do %>
+
+  RESULTS
+
+  <table>
+    <tr>
+      <th> Player </th>
+    </tr>
+    <% @players.each do |player| %>
+    <tr>
+      <td>
+        <%= player.first_name %> <%= player.surname %>
+      </td>
+    </tr>
+    <% end %>
+  </table>
+<% end %>

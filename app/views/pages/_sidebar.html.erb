@@ -2,7 +2,7 @@
   <%= link_to root_path, :class => "strip_link", "data-action" => "click->mobile#menuClose" do %>
       <%= image_tag "hn-logo.svg", size: "200x200", :class => "logo" %>
   <% end %>
-  <%= link_to dash_path, data: {turbo_frame: "content"}, :class => "tab tab_1 strip_link", 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "home", 'data-tabs-target' => "tab" do %>
+  <%= link_to root_path, :class => "tab tab_1 strip_link", 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "home", 'data-tabs-target' => "tab" do %>
     <div class="tab_text">Home</div>
   <% end %>
   <%= link_to users_path, :method => :get, data: {turbo_frame: "content"}, :class => "tab tab_2 strip_link", 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "users", 'data-tabs-target' => "tab" do %>
@@ -11,7 +11,7 @@
   <%= link_to games_path, :class => "tab tab_3 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "games", 'data-tabs-target' => "tab" do %>
     Games
   <% end %>
-  <%= link_to games_path, :class => "tab tab_4 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "new", 'data-tabs-target' => "tab" do %>
+  <%= link_to new_play_path, :class => "tab tab_4 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "new", 'data-tabs-target' => "tab" do %>
     New Play
   <% end %>
 </div>

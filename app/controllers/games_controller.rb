@@ -1,9 +1,9 @@
 class GamesController < ApplicationController
   before_action :set_game, only: %i[ show edit update destroy ]
+  before_action :filter_games, only: %i[table]
   require 'bgg'
 
-  def user_games
-    @games = Game.all.by_user(params[:id])
+  def user
   end
 
   def bgg_update
@@ -12,37 +12,29 @@ class GamesController < ApplicationController
     bgg_collection_ids = []
     @error = nil
 
-    def bgg_user_init
-      if (current_user.bgg_username.present?)
-        collection = Bgg::Collection.find_by_username(current_user.bgg_username)
-        if collection.present?
-          bgg_collection_ids = (collection.boardgames & collection.owned).sort{ |a,b| a.name <=> b.name }.map(&:id)
-        else
-          @error = "BGG User does not exist"
-          return
-        end
-      else
-        @error = "BGG User does not exist"
-        return
-      end
-    end
-    bgg_user_init
-    bgg_collection_ids = bgg_collection_ids - current_games
-    bgg_collection_ids.count > 0 ? games_to_add = BggApi.thing({id:"#{@game_ids[0]},#{@game_ids}"})["item"] : @error = "No Games Found"
-
+    
+    bgg_collection_ids = bgg_user_init(current_user.bgg_username) if current_user.bgg_username.present?
+    pp bgg_collection_ids
+    bgg_collection_ids = bgg_collection_ids - current_games if current_games.present?
+    bgg_collection_ids.count > 0 ? games_to_add = BggApi.thing({id:"#{bgg_collection_ids[0]},#{bgg_collection_ids}",stats:1})["item"] : @error = "No Games Found"
+    
     if games_to_add.present?
-      games_to_add.each do |game|
-        if (!Game.find_by(bgg_id: game.id).present?)
+      games_to_add.each_with_index do |game, i|
+        if (!Game.find_by(bgg_id: game["id"]).present?)
           game_to_add = Game.create(
             bgg_id: game["id"],
-            min_player_count: game["minplayers"][0]["value"],
-            max_player_count: game["maxplayers"][0]["value"],
-            min_rec_player_count: PollCheck.players(game).min,
-            max_rec_player_count: PollCheck.players(game).max,
+            min_players: game["minplayers"][0]["value"],
+            max_players: game["maxplayers"][0]["value"],
+            min_rec_players: PollCheck.players(game).min,
+            max_rec_players: PollCheck.players(game).max,
             image: game["image"],
             description: game["description"],
-            name: game["name"][0]["value"]
-          )
+            name: game["name"][0]["value"],
+            year: game["yearpublished"][0]["value"],
+            playing_time: game["playingtime"][0]["value"],
+            weight: game["statistics"][0]["ratings"][0]["averageweight"][0]["value"]         )
+          else
+            game_to_add = Game.find_by(bgg_id: game["id"])
         end
         Collection.create(
           user_id: current_user.id,
@@ -51,12 +43,12 @@ class GamesController < ApplicationController
       end
     end
 
-    redirect_to user_games_path(current_user.id)
+    redirect_to games_table_path(id: current_user.id), data:{turbo_frame: "games_table"}
   end
 
   # GET /games or /games.json
   def index
-    @games = Game.all
+    @games = Game.all.order(:name)
   end
 
   # GET /games/1 or /games/1.json
@@ -85,6 +77,9 @@ class GamesController < ApplicationController
         format.json { render json: @game.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+  def table
   end
 
   # PATCH/PUT /games/1 or /games/1.json
@@ -119,5 +114,27 @@ class GamesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def game_params
       params.require(:game).permit(:name, :min_players, :max_players, :min_rec_players, :max_rec_players, :weight, :image, :bgg_id, :description)
+    end
+
+    def filter_games
+
+      params[:column] = "name" if !params[:column].present?
+  
+      case params[:column].downcase
+      when "year"
+        @games = search_games.order(:year)
+      when "weight"
+        @games = search_games.order(:weight)
+      when "rating"
+        @games = search_games.joins(:ratings).where(ratings:{user_id: current_user.id}).order(:rating) + (search_games - search_games.joins(:ratings).where(ratings:{user_id: current_user.id}))
+      else
+        @games = search_games.order(:name)
+        pp params[:column]
+      end
+      @games = @games.reverse if params[:direction] == "up" 
+    end
+  
+    def search_games
+      params[:games_filter].present? ? Game.all.by_user(params[:id]).game_search(params[:games_filter]) : params[:id].present? ? Game.all.by_user(params[:id]) : Game.all
     end
 end

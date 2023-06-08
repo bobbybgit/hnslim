@@ -1,14 +1,20 @@
-<p style="color: green"><%= notice %></p>
+<%= turbo_frame_tag :content do %>
 
-<h1>Games</h1>
-
-<div id="games">
-  <% @games.each do |game| %>
-    <%= render game %>
-    <p>
-      <%= link_to "Show this game", game %>
-    </p>
+  <p style="color: green"><%= notice %></p>
+  <%= form_with url: games_table_path, :class => "table_filters", :method => :get, data:{:turbo_frame => "games_table", :controller => "autosub", autosave_delay_value: '1000', "action" => "sub-all@window->autosub#save"} do |form| %>
+    <div class="leftfield">
+      Search by Game Name: 
+      <%= form.text_field :games_filter, :autocomplete => "Off", data:{"action" => "keyup->autosub#save"} %>
+      <%= form.hidden_field :column, :value => "Name" %>
+      <%= form.hidden_field :direction %>
+    </div>
+    <div class="leftfield">
+      Filter by User:
+      <%= form.select :id, options_for_select(User.user_select, params[:id] || -1),{}, data:{"action" => "change->autosub#save"} %>
+    </div>
   <% end %>
-</div>
-
-<%= link_to "New game", new_game_path %>
+  <%= turbo_frame_tag :games_table, src: games_table_path(id: params[:id]) do %>
+  Loading...
+  <% end %>
+  
+<% end %>

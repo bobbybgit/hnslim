@@ -1,0 +1,9 @@
+<%= turbo_frame_tag :content do %>
+  <p style="color: green"><%= notice %></p>
+  <% if current_user.id == params[:id].to_i %>
+    <%= button_to "Import Collection From Bgg", update_games_path, data:{turbo_frame: "content"}, :class => "square_button strip_link", :method => :get %>
+  <% end %>
+  <%= turbo_frame_tag :games_table, src: games_table_path(id: params[:id]) do%>
+    <div class="loader">Loading...</div>
+  <% end %>
+<% end %>

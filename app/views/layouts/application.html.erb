@@ -22,9 +22,8 @@
         <i class="icon" data-action="click->mobile#menuClick">menu</i>
         <%= link_to "HEAVY NIGHT", root_path, :class => "strip_link header_title" %>
       </div>
-      <%= yield %>
-    </div>
-        
+
+        <%= yield %>
       
     
     <div class="modal" id="main_modal" tabindex="-1" data-controller="modal" data-action="turbo:frame-render->modal#open turbo:submit-end->modal#close">

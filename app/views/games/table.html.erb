@@ -1,0 +1,31 @@
+<%= turbo_frame_tag :games_table do %>
+  <% if current_user.id == params[:id].to_i %>
+    <div class="leftfield">
+      <%= button_to "Import Collection From Bgg", update_games_path, data:{turbo_frame: "games_table"}, :class => "square_button update_small_button strip_link", :method => :get %>
+    </div>
+  <% end %>
+  <table class="games_table standard_table">
+    <tr class="header_row" data-controller = "sort">
+      <th data-action = "click->sort#sort" id="Game">Game</th>
+      <th data-action = "click->sort#sort" id="Year">Year</th>
+      <th data-action = "click->sort#sort" id="Weight">Weight</th>
+      <th data-action = "click->sort#sort" id="Rating">My Rating</th>
+      <% if current_user.id == params[:id].to_i %> <th></th> <% end %>
+    </tr>
+      <% @games.each do |game| %>
+        <tr class="data_row">
+          <td><%= game.name %></td>
+          <td class="center_cell"><%= game.year %></td>
+          <td class="center_cell"><%= game.weight.round(1) %></td>
+          <td><%= form_with url: new_rating_path, data:{:controller => "autosub", turbo_frame: "hidden"} do |f| %><%= f.hidden_field :game_id, :value => game.id %><%= f.hidden_field :rating, :value => rated_check(game,current_user.id) %><%= f.select :rating, options_for_select(Rating.rating_values, rated_check(game,current_user.id)), {}, data:{:action => "change->autosub#saveUpdateRating"} %><% end %></td>
+          <% if current_user.id == params[:id].to_i %>
+            <td class="center_cell icon">
+              <%= link_to destroy_collection_path(game.collections.where(user_id: current_user.id).first.id), data:{turbo_method: :delete, turbo_frame: "games_table"}, params:{user_id: params[:id]}, class: "strip_link" do %>
+                delete
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
+<% end %>

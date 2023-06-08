@@ -1,0 +1,11 @@
+<%= turbo_frame_tag :content do %>
+  <div class="options_page">
+    <div class="options_window">
+      <div class="options_group"> Number of players: <%= form_with url: player_select_path, method: :get, data:{turbo_frame: "players", controller: "autosub", "autosub-options" => User.user_select[1..-1]} do |f|  %><%= f.number_field :num_players, :class=>"option_num", :value => 2, data:{action: "autosub#updatePlayers"} %></div><% end %>
+      <%= turbo_frame_tag :options, src: play_options_path do %>
+      <% end %>
+    </div>
+    <%= turbo_frame_tag :play_results do %>
+    <% end %>
+  </div>
+<% end %>

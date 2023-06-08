@@ -1,0 +1,49 @@
+<%= turbo_frame_tag :options do %>
+  <%= form_with url: play_results_path, :class => "play_options", method: :get, data:{turbo_frame: "results"} do |f| %>
+    <div id="all_players" class="options_group">
+      <% for a in 1..2 do %>
+        <% select_name = "player" +a.to_s %>
+        <% check_name = "check" +a.to_s %>
+        <div class="player_select">
+          <%= f.select select_name, options_for_select(User.user_select[1..-1]) %>
+          <%= f.check_box check_name, checked: true %>
+        </div>
+      <% end %>
+    </div>
+    <div class="options_group">
+      Non Playing Collection: <%= f.select :collection, options_for_select(["None"] + User.user_select[1..-1]) %>
+    </div>
+    <div class="options_group">
+      Total Play Time (Minutes): <%= f.number_field :time, value: "120", :class => "option_num" %>
+    </div>
+    <div class="options_group">
+      Game Length (Minutes): <nobr />
+      <div class="option_between">
+        <div class="option_w_lab">Min: <%= f.number_field :min_length, value: "0", :class => "option_num" %></div>
+        <div class="option_w_lab">Max: <%= f.number_field :max_length, value: "120", :class => "option_num" %></div>
+      </div>
+    </div>
+    <div class="options_group">
+      Maximum Number of Games: <%= f.number_field :num_games, value: "1", :class => "option_num" %>
+    </div>
+    <div class="options_group">
+      Game Weight (BGG): 
+      <div class="option_between">
+        <div class="option_w_lab">Min: <%= f.number_field :min_weight, value: "0", :class => "option_num" %></div>
+        <div class="option_w_lab">Max:<%= f.number_field :max_weight, value: "5", :class => "option_num" %></div>
+      </div>
+    </div>
+    <div class="options_group">
+      Players Per Game:
+      <div class="option_between">
+        <div class="option_w_lab">Min: <%= f.number_field :group_size_min, value: "3", :class => "option_num" %></div>
+        <div class="option_w_lab">Max:<%= f.number_field :group_size_max, value: "5", :class => "option_num" %></div>
+      </div>
+    </div>
+    <%= f.hidden_field :exclude %>
+    <br>
+    <div class="option_w_lab">
+     <%= f.submit "Get Results", data:{turbo_frame: "play_results"} %>
+    </div>
+  <% end %>
+<% end %>

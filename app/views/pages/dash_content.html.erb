@@ -1,0 +1,8 @@
+<%= turbo_frame_tag :content do %>
+    <p style="color: green"><%= notice %></p>
+    <div class="big_buttons">
+    <%= button_to "My Collection", games_path, params:{id: current_user.id}, data:{turbo_frame: "content"}, :class => "dash_button update_button strip_link", :method => :get %>
+    <%= button_to "Edit Profile", edit_user_registration_path, data:{turbo_frame: "content"}, :class => "dash_button edit_profile_button strip_link", :method => :get %>
+    <%= button_to "Log Out", destroy_user_session_path, :method => :delete, turbo_frame: "content", :class => "dash_button log_out_button strip_link" %>
+    </div>
+<% end %>
