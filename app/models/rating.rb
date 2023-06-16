@@ -13,7 +13,7 @@ class Rating < ApplicationRecord
   end
 
   def self.translate_rating(rating)
-    key = [[1,-20],[2,-5],[3,0],[4, 1],[5, 2],[6, 4],[7, 8],[0,0]]
+    key = [[1,0],[2,15],[3,20],[4, 21],[5, 22],[6, 24],[7, 28],[0,20]]
     key.each do |score|
       return score[1] if rating == score[0]
     end

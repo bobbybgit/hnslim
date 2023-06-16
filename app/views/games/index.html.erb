@@ -14,7 +14,7 @@
     </div>
   <% end %>
   <%= turbo_frame_tag :games_table, src: games_table_path(id: params[:id]) do %>
-  Loading...
+   
   <% end %>
-  
+  <%= render 'pages/loader' %>
 <% end %>

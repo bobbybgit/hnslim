@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "pages/_loader", as: "loader"
   get "users/index", to: "users#index", as: "users"
   get "games/update", to: "games#bgg_update", as: "update_games"
   get "games/table", to: "games#table", as: "games_table"

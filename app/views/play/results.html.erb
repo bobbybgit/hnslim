@@ -2,16 +2,32 @@
 
   RESULTS
 
-  <table>
-    <tr>
-      <th> Player </th>
-    </tr>
-    <% @players.each do |player| %>
-    <tr>
-      <td>
-        <%= player.first_name %> <%= player.surname %>
-      </td>
-    </tr>
-    <% end %>
-  </table>
+  <% if @error.present? %>
+    <%= @error %>
+  <% else %>
+
+    <table class="play_results">
+      <tr>
+        <th> Player </th>
+        <th> Group </th>
+        <th> Game </th>
+      </tr>
+      <% @rankings[0].each_with_index do |group, i| %>
+        <% group.each do |player| %>
+          <tr>
+            <td>
+              <%= @players.where(id: player).first.first_name %> <%= @players.where(id: player).first.surname %>
+            </td>
+            <td class="center_cell">
+              <%= i+1 %>
+            </td>
+            <td>
+            <% pp @rankings %>
+              <%= @rankings[2][i]%>
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
+  <% end %>
 <% end %>
