@@ -17,6 +17,7 @@ class Rating < ApplicationRecord
     key.each do |score|
       return score[1] if rating == score[0]
     end
+    return key.last[1]
   end
 
 end

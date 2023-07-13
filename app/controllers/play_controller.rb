@@ -1,5 +1,166 @@
 class PlayController < ApplicationController
 
+  class PlayGroup
+    def initialize(params)
+      @error = nil
+      @group_sizes = set_group_sizes(params)
+      pp @group_sizes
+      @players = set_players(params)
+      @spaces = Array.new(player_count,0)
+      
+
+      @collection = set_collection(params)
+      @collection.present? ? @games = set_games(params) : error = "No games found, please add games or add players with existing collections"
+      @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players" if group_error_check(params)
+      @games_for_spaces = set_game_spaces(params)
+      if !error.present?
+        @player_scores = set_player_scores
+        @games_combos = set_games_combos(params) 
+        pp @games_combos.count       
+      end      
+    end
+
+    def nested_hash
+      Hash.new { |h, k| h[k] = nested_hash }
+    end
+
+    def get_game_spaces
+      @games_for_spaces
+    end
+
+    
+
+    def set_game_spaces(params)
+      game_slots = @games.flat_map { |game| [game.id] * [game.max_players, params[:group_size_max]].min }
+      #game_combos = generate_combinations(game_slots, player_count, params[:group_size_min])
+    end
+
+    def get_players
+      @players
+    end
+
+    def get_games
+      @games
+    end
+
+    def get_scores
+      @player_scores
+    end
+
+    def get_group_rankings(group)
+      @group_scores[group]
+    end
+
+    def get_group_scores
+      @group_scores
+    end
+
+    def get_group_score(group, game)
+      @group_scores[group][game]
+    end
+
+    def combo_score_generator(combo)
+      score = 0
+      combo.each do |group|
+        score = score + get_group_score(group[0],group[1])
+      end
+      return score
+    end
+
+    
+
+    def get_rankings
+      
+      top_combo = [0,0]
+
+      @combos.each do |combo|
+        possible_game_combos = @games_combos.select{ |a| a.length == combo.length}       
+        possible_game_combos.each_with_object({}).with_index do |(game_combo, poss_combos),i|
+          
+          poss_combos[i] = combo.product(game_combo).combination(game_combo.length).to_a.select{|a| (a.map{ |b| b[0]}.length == a.map{ |b| b[0]}.uniq.length) && (a.map{ |b| b[1]}.length == a.map{ |b| b[1]}.uniq.length)}
+          poss_combos[i].each_with_index do | c,ind |
+            combo_score = combo_score_generator(poss_combos[i][ind])
+            top_combo = [poss_combos[i][ind],combo_score] if combo_score > top_combo[1]
+          end
+            
+        end
+          
+      end
+
+        return top_combo 
+                      
+    end
+
+    def set_games_combos(params)
+      @games_for_spaces.combination(player_count)
+      #gc = @games_for_spaces.combination(player_count).select{ |combo| combo.uniq.map{ |spot| [spot,combo.count(spot)]}.none?{|game| pp game; game[1] < @player_scores[game[0]][:min_players]} }
+    end
+
+    def set_players(params)
+      user_ids = params.select{ |k, v| (k.start_with? "attend") && (v == "1") }.keys.map{|k| k.tr("attend","").to_i}
+      User.where(id: user_ids)
+    end
+
+    def set_collection(params)
+      collection_ids = params.select{ |k, v| (k.start_with? "collection") && (v == "1") }.keys.map{|k| k.tr("collection","").to_i}
+      Collection.where(user_id:collection_ids)
+    end
+
+    def set_games(params)
+      @games = Game.all
+    end
+
+    def set_group_sizes(params)
+      if (params[:group_size_min] != params[:group_size_max])
+        @group_sizes = *(params[:group_size_min].to_i..params[:group_size_max].to_i)
+      else
+        @group_sizes = [[params[:group_size_min].to_i,params[:group_size_max].to_i]]
+      end
+    end
+
+    def group_error_check(params)
+      (params[:group_size_min].to_i > params[:group_size_max].to_i) || (params[:group_size_min].to_i > player_count) || !GroupCheck.check_group(@group_sizes,player_count)
+    end
+
+    def set_groups(params)
+      (params[:group_size_min].to_i..params[:group_size_max].to_i).flat_map{|group_size| @players.map{ |player| player.id}.combination(group_size).to_a}
+    end
+
+    def set_combos(params)
+      @combos = []
+      for a in (player_count/params[:group_size_max].to_i..player_count/params[:group_size_min].to_i) do
+        new_combos = @groups.repeated_permutation(a).to_a
+        @combos = @combos.concat(new_combos)
+      end
+      @combos = @combos.select{ |a| a.flatten.uniq.length == player_count()}.select{ |b| b.flatten == b.flatten.uniq}.map{ |c| c.sort }.uniq
+    end
+
+    
+
+    def set_options(params)
+      Game.all.play_time(params[:min_length], params[:max_length], params[:time]).by_weight(params[:min_weight],params[:max_weight]).by_players(params[:group_size_min],params[:group_size_max])
+    end
+
+    def player_count
+      @players.length
+    end
+
+    def set_player_scores
+    
+      @games.each_with_object(nested_hash) do |game, scores|
+        scores[game.id][:min_players] = game.min_players
+        scores[game.id][:max_players] = game.max_players
+        @players.each do |player|
+           rating = Rating.where(user_id: player.id, game_id: game.id).first if Rating.where(user_id: player.id, game_id: game.id).first.present?
+           rating.present? ? score = rating.rating : score = 0
+          scores[game.id][player.id] = Rating.translate_rating(score)
+        end
+      end     
+
+    end
+
+  end
+
   def new
     
   end
@@ -10,114 +171,22 @@ class PlayController < ApplicationController
 
   def results
     @error = nil
-    @players = set_players(params)
-    
-    group_sizes = *(params[:group_size_min].to_i..params[:group_size_max].to_i)
-    if (params[:group_size_min].to_i > params[:group_size_max].to_i) || (params[:group_size_min].to_i > @players.length) || !GroupCheck.check_group(group_sizes,@players.length)
-      @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players"
-    else
-      @games = set_options(params).where(id: set_collection(params, @players).map{|collection| collection.game_id})
-      pp @games.map{ |game| game.name}
-      @groups = (params[:group_size_min].to_i..params[:group_size_max].to_i).flat_map{|group_size| @players.map{ |player| player.id}.combination(group_size).to_a}
-      pp @groups
-      if @games.length == 0
-        @error = "No games meet the requirements, please reconfigure options or add more games"
-      else
-        groups_with_score = @groups.map{ |group| [group,@games.map{ |game| [game.id, Rating.joins(:game, :user).where(game_id: game.id, user_id: group).map{ |player| Rating.translate_rating(player.rating)}.sum]}]}
-        groups_with_score.each do |group|
-          group[1].sort!{ |a, b| b[1] <=> a[1]}
-        end
-        pp groups_with_score
-
-        rankings = set_rankings(groups_with_score, @players.length)
-        #scores = @games.map{ |game| [game.id, @players.map{|player| Rating.joins(:game, :user).where(game_id: game.id, user_id: player.id).first.present? ? [player.id, Rating.translate_rating(Rating.joins(:game, :user).where(game_id: game.id, user_id: player.id).first.rating)] : [player.id, 0]}.to_h]}.to_h
-        #@group_scores = set_group_scores(scores, @groups, @games)
-        #@rankings = set_rankings(@group_scores, @groups, @games, @players)
-
-      
-        
-      end
-    end
+    @playgroup = PlayGroup.new(params)
+    @rankings = @playgroup.get_rankings
+    @players = @playgroup.get_players
+    @games = @playgroup.get_games
     pp @error if @error.present?
   end
 
   private
 
-  def set_group_scores(scores, groups, games)
-    group_score = Hash.new
-    groups.each_with_index  do |group, i|
-      group_score[group] = Hash.new
-      games.each  do |game|
-        group_score[group][game.id] = scores[game.id].values_at(*group).sum
-      end
-      group_score[group] = group_score[score].sort_by{ |k,v| v}
-    end
-    pp group_score
-    group_score
-  end
-
-  def set_players(params)
-
-    user_ids = params.select{ |k, v| (k.start_with? "attend") && (v == "1") }.keys.map{|k| k.tr("attend","").to_i}
-    User.where(id: user_ids)
-
-  end
-
+  
  
-  def set_options(params)
-    
-    Game.all.play_time(params[:min_length], params[:max_length], params[:time]).by_weight(params[:min_weight],params[:max_weight]).by_players(params[:group_size_min],params[:group_size_max])
+  
 
-  end
+  
 
-  def set_collection(params, players)
-    
-    collection_ids = params.select{ |k, v| (k.start_with? "collection") && (v == "1") }.keys.map{|k| k.tr("collection","").to_i}
-    Collection.where(user_id:collection_ids)
-
-  end
-
-  def recursive_check(groups_with_score, length, combined_groups, index, player_count, combined_group)
-    groups_with_score.each do |group|
-      if length + group[0] == player_count
-
-
-  end
-
-  def set_rankings(groups_with_score, player_count)
-    combined_groups = []
-    groups_with_score.each do |group|
-      if group[0].length == player_count
-        combined_group = [group]
-        combined_groups.push(combined_group)
-      elsif group[0].length > 0
-        
-        recursive_check(groups_with_score, )
-      end
-    
-    
-    
-    #combinations = (1..players.length).flat_map{|combo| groups.combination(combo).to_a}.select{|group| a= 0; group.each do |subgroup| a = a + subgroup.length end; a == players.length}
-    #combinations = combinations.select{ |combo| combo.flatten.uniq.length == combo.flatten.length}
-    #pp " combos #{combinations} #{players.length}"
-    #top_games = Hash.new
-    #combinations.each_with_index do |combo, i|
-     # top_games[combo] = Hash.new
-     # combo.each do |group|
-     #   top_games[combo][group] = Hash.new
-
-       # group_index = groups.find_index(group)
-       # game_and_score = group_scores[group_index].max_by{|k,v| v}
-       # top_games[combo][group][:game] = games.where(id: game_and_score[0]).first.name
-       # top_games[combo][group][:score] = game_and_score[1]
-       # pp top_games
-        
-        
-        
-        
-     # end
-    #end
-    #top_games.map{|k,v| [k,v.values.map{|v| v[:score]}.sum(0),v.values.map{|v| v[:game]}] }.sort {|a,b| a[1] <=> b[1]}.last
-  end
+  
+  
 
 end

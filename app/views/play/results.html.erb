@@ -13,7 +13,7 @@
         <th> Game </th>
       </tr>
       <% @rankings[0].each_with_index do |group, i| %>
-        <% group.each do |player| %>
+        <% group[0].each do |player| %>
           <tr>
             <td>
               <%= @players.where(id: player).first.first_name %> <%= @players.where(id: player).first.surname %>
@@ -23,7 +23,7 @@
             </td>
             <td>
             <% pp @rankings %>
-              <%= @rankings[2][i]%>
+              <%= @games.where(id: group[1]).first.name %>
             </td>
           </tr>
         <% end %>

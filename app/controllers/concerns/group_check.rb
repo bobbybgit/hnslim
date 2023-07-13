@@ -14,7 +14,7 @@ module GroupCheck
       return false
 
     else
-      totals = *(group_sizes[0]..group_sizes[1])
+      totals = group_sizes
       GroupCheck.generate_sums(totals, player_count) ? true : false
 
 
@@ -39,7 +39,7 @@ module GroupCheck
         new_total = old_total + b
         pp "new total: #{new_total} player count: #{player_count}"
         return true if new_total == player_count
-        new_totals.push(new_total) if (new_total < player_count)
+        new_totals.push(new_total) if (new_total == player_count)
       end
       tot_array[i] = new_totals
     end
