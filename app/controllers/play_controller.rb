@@ -6,34 +6,27 @@ class PlayController < ApplicationController
       @group_sizes = set_group_sizes(params)
       pp @group_sizes
       @players = set_players(params)
-      @spaces = Array.new(player_count,0)
-      
-
       @collection = set_collection(params)
-      @collection.present? ? @games = set_games(params) : error = "No games found, please add games or add players with existing collections"
+      @collection.present? ? @games = set_games(params) : @error = "No games found, please add games or add players with existing collections"
       @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players" if group_error_check(params)
-      @games_for_spaces = set_game_spaces(params)
-      if !error.present?
+      if !@error.present?
+        @groups = set_groups(params)
+        @group_combinations = combine_groups(params)
         @player_scores = set_player_scores
-        @games_combos = set_games_combos(params) 
-        pp @games_combos.count       
-      end      
+        @group_scores = calculate_group_scores
+        calculate_final_scores
+       end      
     end
 
     def nested_hash
       Hash.new { |h, k| h[k] = nested_hash }
     end
 
-    def get_game_spaces
-      @games_for_spaces
+    def get_groups 
+      @groups
     end
 
     
-
-    def set_game_spaces(params)
-      game_slots = @games.flat_map { |game| [game.id] * [game.max_players, params[:group_size_max]].min }
-      #game_combos = generate_combinations(game_slots, player_count, params[:group_size_min])
-    end
 
     def get_players
       @players
@@ -69,36 +62,57 @@ class PlayController < ApplicationController
 
     
 
-    def get_rankings
+   # def get_rankings
       
-      top_combo = [0,0]
+     # top_combo = [0,0]
 
-      @combos.each do |combo|
-        possible_game_combos = @games_combos.select{ |a| a.length == combo.length}       
-        possible_game_combos.each_with_object({}).with_index do |(game_combo, poss_combos),i|
+      #@combos.each do |combo|
+       # possible_game_combos = @games_combos.select{ |a| a.length == combo.length}       
+        #possible_game_combos.each_with_object({}).with_index do |(game_combo, poss_combos),i|
           
-          poss_combos[i] = combo.product(game_combo).combination(game_combo.length).to_a.select{|a| (a.map{ |b| b[0]}.length == a.map{ |b| b[0]}.uniq.length) && (a.map{ |b| b[1]}.length == a.map{ |b| b[1]}.uniq.length)}
-          poss_combos[i].each_with_index do | c,ind |
-            combo_score = combo_score_generator(poss_combos[i][ind])
-            top_combo = [poss_combos[i][ind],combo_score] if combo_score > top_combo[1]
-          end
+         # poss_combos[i] = combo.product(game_combo).combination(game_combo.length).to_a.select{|a| (a.map{ |b| b[0]}.length == a.map{ |b| b[0]}.uniq.length) && (a.map{ |b| b[1]}.length == a.map{ |b| b[1]}.uniq.length)}
+          #poss_combos[i].each_with_index do | c,ind |
+           # combo_score = combo_score_generator(poss_combos[i][ind])
+            #top_combo = [poss_combos[i][ind],combo_score] if combo_score > top_combo[1]
+          #end
             
-        end
+        #end
           
-      end
+     # end
 
-        return top_combo 
+      #  return top_combo 
                       
-    end
-
-    def set_games_combos(params)
-      @games_for_spaces.combination(player_count)
-      #gc = @games_for_spaces.combination(player_count).select{ |combo| combo.uniq.map{ |spot| [spot,combo.count(spot)]}.none?{|game| pp game; game[1] < @player_scores[game[0]][:min_players]} }
-    end
+    #end
 
     def set_players(params)
       user_ids = params.select{ |k, v| (k.start_with? "attend") && (v == "1") }.keys.map{|k| k.tr("attend","").to_i}
       User.where(id: user_ids)
+    end
+
+    def calculate_group_scores
+      scores = groups_map 
+    end
+
+    def groups_map
+      @groups.map{|group| {group => games_map(group)}}
+    end
+
+    def games_map(group)
+      @games.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| b[1] <=> a[1]}
+    end
+
+    def sum_ratings(group, game)
+      group.map{|player| get_rating(game.id,player)}.sum
+    end
+
+    def get_rating(game_id, user_id)
+      rating = Rating.where(game_id: game_id, user_id: user_id).first.presence || 0
+      rating = rating.rating if rating != 0
+      Rating.translate_rating(rating)
+    end
+
+    def calculate_final_scores
+      #final_scores = player_combination
     end
 
     def set_collection(params)
@@ -107,7 +121,7 @@ class PlayController < ApplicationController
     end
 
     def set_games(params)
-      @games = Game.all
+      @games = Game.where(id: @collection.pluck(:game_id))
     end
 
     def set_group_sizes(params)
@@ -126,15 +140,22 @@ class PlayController < ApplicationController
       (params[:group_size_min].to_i..params[:group_size_max].to_i).flat_map{|group_size| @players.map{ |player| player.id}.combination(group_size).to_a}
     end
 
-    def set_combos(params)
-      @combos = []
-      for a in (player_count/params[:group_size_max].to_i..player_count/params[:group_size_min].to_i) do
-        new_combos = @groups.repeated_permutation(a).to_a
-        @combos = @combos.concat(new_combos)
-      end
-      @combos = @combos.select{ |a| a.flatten.uniq.length == player_count()}.select{ |b| b.flatten == b.flatten.uniq}.map{ |c| c.sort }.uniq
+    def get_group_combinations
+      @group_combinations
     end
 
+    def combine_groups(params)
+     combos = []
+      for a in (player_count/params[:group_size_max].to_i..player_count/params[:group_size_min].to_i) do
+        new_combos = @groups.repeated_permutation(a).to_a
+        combos = combos.concat(new_combos)
+      end
+      validate_groups(combos)
+    end
+
+    def validate_groups(combos)
+      combos.select{ |a| a.flatten.uniq.length == player_count()}.select{ |b| b.flatten == b.flatten.uniq}.map{ |c| c.sort }.uniq
+    end
     
 
     def set_options(params)
