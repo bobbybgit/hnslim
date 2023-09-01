@@ -1,4 +1,8 @@
 <%= turbo_frame_tag :content do %>
+  <p style="color: green"><%= notice %></p>
+  <% flash.each do |key, value| %>
+    <%= content_tag :div, value, class: "flash #{key}", style: "color: green" %>
+  <% end %>
   <div class="login_window">
     <div class="login_card">
 
