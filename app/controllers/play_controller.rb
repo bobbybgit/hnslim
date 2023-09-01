@@ -13,8 +13,9 @@ class PlayController < ApplicationController
         @groups = set_groups(params)
         @group_combinations = combine_groups(params)
         @player_scores = set_player_scores
-        @group_scores = calculate_group_scores
-        calculate_final_scores
+        @group_scores = calculate_group_scores(params)
+        pp " scores: #{@group_scores}"
+        !@group_scores[0].first[1].empty? ? @final_scores = calculate_final_scores(params) : @error = "No games meet criteria, please adjust options and try again"
        end      
     end
 
@@ -26,7 +27,9 @@ class PlayController < ApplicationController
       @groups
     end
 
-    
+    def get_final_scores
+      @final_scores
+    end
 
     def get_players
       @players
@@ -52,53 +55,33 @@ class PlayController < ApplicationController
       @group_scores[group][game]
     end
 
-    def combo_score_generator(combo)
-      score = 0
-      combo.each do |group|
-        score = score + get_group_score(group[0],group[1])
-      end
-      return score
-    end
-
-    
-
-   # def get_rankings
-      
-     # top_combo = [0,0]
-
-      #@combos.each do |combo|
-       # possible_game_combos = @games_combos.select{ |a| a.length == combo.length}       
-        #possible_game_combos.each_with_object({}).with_index do |(game_combo, poss_combos),i|
-          
-         # poss_combos[i] = combo.product(game_combo).combination(game_combo.length).to_a.select{|a| (a.map{ |b| b[0]}.length == a.map{ |b| b[0]}.uniq.length) && (a.map{ |b| b[1]}.length == a.map{ |b| b[1]}.uniq.length)}
-          #poss_combos[i].each_with_index do | c,ind |
-           # combo_score = combo_score_generator(poss_combos[i][ind])
-            #top_combo = [poss_combos[i][ind],combo_score] if combo_score > top_combo[1]
-          #end
-            
-        #end
-          
-     # end
-
-      #  return top_combo 
-                      
-    #end
-
     def set_players(params)
       user_ids = params.select{ |k, v| (k.start_with? "attend") && (v == "1") }.keys.map{|k| k.tr("attend","").to_i}
       User.where(id: user_ids)
     end
 
-    def calculate_group_scores
-      scores = groups_map 
+    def calculate_group_scores(params)
+      scores = groups_map(params)
     end
 
-    def groups_map
-      @groups.map{|group| {group => games_map(group)}}
+    def get_error
+      @error
     end
 
-    def games_map(group)
-      @games.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| b[1] <=> a[1]}
+    def groups_map(params)
+      @groups.map{|group| {group => games_map(group,params)}}
+    end
+
+    def games_map(group,params)
+      @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| b[1] <=> a[1]}
+    end
+
+    def players_check(game,group,rec)
+      if rec == "1"
+        (game.min_rec_players > group.count) || (game.max_rec_players < group.count) ? false : true
+      else
+        (game.min_players > group.count) || (game.max_players < group.count) ? false : true
+      end
     end
 
     def sum_ratings(group, game)
@@ -111,8 +94,33 @@ class PlayController < ApplicationController
       Rating.translate_rating(rating)
     end
 
-    def calculate_final_scores
-      #final_scores = player_combination
+    def calculate_final_scores(params)
+      
+      top_combo = Hash.new
+      game_selection = Hash.new
+
+      def check_dups(game_selection)
+        game_selection.select{|group| game_selection.map{|group_sel| group_sel[2][0]}.count(group[2][0]) > 1}.count > 0 ? true : false
+      end
+
+      @group_combinations.each do |combo|
+       game_selection = @group_scores.select{|group| combo.include?(group.keys.first) }.flat_map{|group| group.map{|group_ids,games| [group_ids, 0, games.first]}}
+       while check_dups(game_selection)
+        next_highest = [nil,0,[0,0]]
+        highest_index = 0
+        game_selection.each_with_index do |grouping,i|
+          if @group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1][1] > next_highest[2][1]
+            next_highest = [grouping[0],grouping[1]+1,@group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1]]
+            highest_index = i 
+          end
+        end         
+        game_selection[highest_index] = next_highest
+       end
+      top_combo = game_selection if top_combo.empty? || game_selection.map{|group| group[2][1]}.sum > top_combo.map{|group| group[2][1]}.sum
+      end
+      top_combo      
+
+      
     end
 
     def set_collection(params)
@@ -121,14 +129,14 @@ class PlayController < ApplicationController
     end
 
     def set_games(params)
-      @games = Game.where(id: @collection.pluck(:game_id))
+      @games = Game.where(id: @collection.pluck(:game_id)).by_players(params[:group_size_min],params[:group_size_max],params[:rec]).by_weight(params[:min_weight],params[:max_weight]).play_time(params[:min_length],params[:max_length], params[:max_length])
     end
 
     def set_group_sizes(params)
       if (params[:group_size_min] != params[:group_size_max])
         @group_sizes = *(params[:group_size_min].to_i..params[:group_size_max].to_i)
       else
-        @group_sizes = [[params[:group_size_min].to_i,params[:group_size_max].to_i]]
+        @group_sizes = [params[:group_size_min].to_i,params[:group_size_max].to_i]
       end
     end
 
@@ -149,6 +157,7 @@ class PlayController < ApplicationController
       for a in (player_count/params[:group_size_max].to_i..player_count/params[:group_size_min].to_i) do
         new_combos = @groups.repeated_permutation(a).to_a
         combos = combos.concat(new_combos)
+        pp a
       end
       validate_groups(combos)
     end
@@ -193,9 +202,10 @@ class PlayController < ApplicationController
   def results
     @error = nil
     @playgroup = PlayGroup.new(params)
-    @rankings = @playgroup.get_rankings
+    @rankings = @playgroup.get_final_scores
     @players = @playgroup.get_players
     @games = @playgroup.get_games
+    @error = @playgroup.get_error if @playgroup.get_error.present?
     pp @error if @error.present?
   end
 

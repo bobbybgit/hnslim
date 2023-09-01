@@ -5,7 +5,7 @@ class Rating < ApplicationRecord
   scope :by_user,->(search_id){where(user_id: search_id)}
 
   def self.rating_values
-    [["Not Rated",0],["Veto",1],["Avoid",2],["Will Play",3],["Content",4],["Curious",5],["Keen",6],["Excited",7]]
+    [["Not Rated",0],["Veto",1],["Avoid",2],["No Interest",3],["Content",4],["Happy",5],["Keen",6],["Excited",7]]
   end
 
   def self.rating_reverse(rating)

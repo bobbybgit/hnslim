@@ -1,10 +1,10 @@
 <%= turbo_frame_tag :games_table do %>
   <% if current_user.id == params[:id].to_i %>
     <div class="leftfield">
-      <%= button_to "Import Collection From Bgg", update_games_path, data:{turbo_frame: "games_table"}, :class => "square_button update_small_button strip_link", :method => :get %>
+      <%= button_to "Import Collection From Bgg", update_games_path, :class => "square_button update_small_button strip_link", :method => :get %>
     </div>
   <% end %>
-  <table class="games_table standard_table">
+  <table class="games_table standard_table" data-controller="expand">
     <tr class="header_row" data-controller = "sort">
       <th data-action = "click->sort#sort" id="Game">Game</th>
       <th data-action = "click->sort#sort" id="Year">Year</th>
@@ -13,7 +13,7 @@
       <% if current_user.id == params[:id].to_i %> <th></th> <% end %>
     </tr>
       <% @games.each do |game| %>
-        <tr class="data_row">
+        <tr class="data_row_clickable expandable_row" data-action ="click->expand#expandRow">
           <td><%= game.name %></td>
           <td class="center_cell"><%= game.year %></td>
           <td class="center_cell"><%= game.weight.round(1) %></td>
@@ -25,6 +25,20 @@
               <% end %>
             </td>
           <% end %>
+        </tr>
+        <tr class="panel">
+          <td class="game_panel" colspan="4">
+            <div class="game_panel_container">
+              <div><%= image_tag game.image[2..-3] %></div>
+              <div>Players: <%= game.min_players %> - <%= game.max_players %></div>
+              <div>Recommended players: <%= game.min_rec_players %>
+                <% if game.min_rec_players != game.max_rec_players %>
+                  - <%= game.max_rec_players %>
+                <% end %>
+              </div>
+              <div>Play time: <%= game.playing_time%></div>
+            </div>
+          </td>
         </tr>
       <% end %>
     </table>

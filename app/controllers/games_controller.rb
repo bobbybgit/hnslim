@@ -12,11 +12,27 @@ class GamesController < ApplicationController
     bgg_collection_ids = []
     @error = nil
 
+    def import_games(bgg_collection_ids)
+      response = []
+      begin 
+        pp BggApi.thing({id:"#{bgg_collection_ids[0]},#{bgg_collection_ids}",stats:1})["item"]
+        response = BggApi.thing({id:"#{bgg_collection_ids[0]},#{bgg_collection_ids}",stats:1})["item"]
+      rescue StandardError => e
+        if e.message =~ /202/
+          pp "202"
+          retry
+        else
+          pp "other"
+        end
+      end
+      pp response
+      return response
+    end
     
     bgg_collection_ids = bgg_user_init(current_user.bgg_username) if current_user.bgg_username.present?
     pp bgg_collection_ids
     bgg_collection_ids = bgg_collection_ids - current_games if current_games.present?
-    bgg_collection_ids.count > 0 ? games_to_add = BggApi.thing({id:"#{bgg_collection_ids[0]},#{bgg_collection_ids}",stats:1})["item"] : @error = "No Games Found"
+    bgg_collection_ids.count > 0 ? games_to_add = import_games(bgg_collection_ids) : @error = "No Games Found"
     
     if games_to_add.present?
       games_to_add.each_with_index do |game, i|
@@ -43,7 +59,7 @@ class GamesController < ApplicationController
       end
     end
 
-    redirect_to games_table_path(id: current_user.id), data:{turbo_frame: "games_table"}
+    redirect_to games_table_path(id: current_user.id), data:{turbo_frame: :games_table}
   end
 
   # GET /games or /games.json

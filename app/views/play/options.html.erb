@@ -20,19 +20,20 @@
         <% end %>
       </table>
     </div>
-    <div class="options_group">
+    <!-- <div class="options_group">
       Total Play Time (Minutes): <%= f.number_field :time, value: "240", :class => "option_num" %>
-    </div>
+    </div> -->
     <div class="options_group">
       Game Length (Minutes): <nobr />
       <div class="option_between">
         <div class="option_w_lab">Min: <%= f.number_field :min_length, value: "0", :class => "option_num" %></div>
         <div class="option_w_lab">Max: <%= f.number_field :max_length, value: "240", :class => "option_num" %></div>
-      </div>
+      </div><br/>
+      <div class="option_w_lab">Use recommended player counts? <%= f.check_box :rec, checked: false %></div>
     </div>
-    <div class="options_group">
+    <!-- <div class="options_group">
       Maximum Number of Games: <%= f.number_field :num_games, value: "1", :class => "option_num" %>
-    </div>
+    </div> -->
     <div class="options_group">
       Game Weight (BGG): 
       <div class="option_between">

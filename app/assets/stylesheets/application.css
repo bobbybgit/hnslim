@@ -249,11 +249,13 @@ padding: 0 10px;
 
 }
 
+
+
 .options_group{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 600px;
+  width: 300px;
   align-items: center;
   justify-content: center;
   column-gap: 5px;
@@ -437,7 +439,7 @@ font-style: normal;
 }
 
 
-.expand_header{
+.expand_header, .results_head{
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -448,6 +450,50 @@ font-style: normal;
   color: var(--textSecondary);
   padding: 5px;
 }
+
+.login_window{
+  display: flex;
+  padding: 20px;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%
+}
+
+.login_card{
+  display: flex;
+  padding: 20px;
+  flex: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+}
+
+.game_panel img{
+ width: 125px;
+ height: auto;
+}
+
+.panel{
+  display: none;
+  background-color: var(--main);
+ 
+}
+
+.game_panel{
+  display: table-cell;
+}
+
+.game_panel_container{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
 
 
 #content{
@@ -469,7 +515,7 @@ font-style: normal;
   justify-content: center;
   width: 100%;
   height: calc(100% - 40px);
-  gap: 40px;
+  margin: 0 20px;
  }
 
  .options_window{
@@ -490,8 +536,16 @@ font-style: normal;
   align-items: center;
   justify-content: flex-start;
   font-size: 14px;
-  min-height: 100%
+  min-height: 100%;
 
+ }
+
+ .error{
+  color: var(--tertiary)
+ }
+
+ .play_results, .error{
+  width: 100%;
  }
 
 
@@ -558,6 +612,7 @@ th{
 td{
   background-color: inherit;
   color: inherit;
+  font-weight: inherit;
   margin: 2px;
   padding: 5px 10px;
 }
@@ -570,10 +625,6 @@ td{
 tr{
   background-color: var(--mainDark);
   color: var(--textMain);
-}
-
-.play_results, .options_group{
-   width: 300px; 
 }
 
 @media only screen and (max-width: 600px) {
@@ -600,6 +651,10 @@ tr{
   .sidebar{
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; ;
   }
+
+  #play_results{
+    width: 300px;
+  }
 }
 
 .update_small_button{
@@ -614,6 +669,7 @@ tr{
   background-color: var(--secondaryhighlight);
   color: var(--textSecondary);
 }
+
 form .option_num{
   width: 80px;
   margin: 0;
@@ -624,7 +680,7 @@ form .option_num{
     padding-left: 300px;
   }
 
-  .play_results{
+   #play_results, .results_group{
     width: 600px; 
  }
   .sidebar{
@@ -639,6 +695,12 @@ form .option_num{
     display: flex;
   }
 
+  .bad_button{
+    background-color: black;
+  }
+  .bad_button:hover{
+    background-color: #222222;
+  }
  
 
  

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "games/import_status", to: "games#import_status"
   get "pages/_loader", as: "loader"
   get "users/index", to: "users#index", as: "users"
   get "games/update", to: "games#bgg_update", as: "update_games"
@@ -15,6 +16,7 @@ Rails.application.routes.draw do
   get "play/player_select", to: "play#player_select", as: "player_select"
   get "play/results", to: "play#results", as: "play_results"
   get "play/options", to: "play#options", as: "play_options"
+  
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
