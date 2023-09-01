@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= javascript_importmap_tags %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,7 +14,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <%= javascript_include_tag("https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.dig(:google_maps_api_key).to_s}&libraries=places&callback=initMap", defer:true, 'data-turbo-eval':'false') %>
-    <%= javascript_importmap_tags %>
+  
   </head>
 
   <body>

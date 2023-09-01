@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "stimulus-places-autocomplete": "^0.5.0",
     "stimulus-rails-autosave": "^4.1.1"
   }
 }

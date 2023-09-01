@@ -5,6 +5,16 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 
+window.initMap = function () {
+    console.log("Init map running")
+    const event = new Event('google-maps-callback', {
+      bubbles: true,
+      cancelable: true,
+    })
+    window.dispatchEvent(event)
+    console.log("event dispatched")
+  }
+
 
 
 

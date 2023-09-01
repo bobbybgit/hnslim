@@ -21,11 +21,13 @@
     <%= form.check_box :private %>
   </div>
 
-  <div>
+  <div data-controller="places" data-action="google-maps-callback@window->places#initAutocomplete">
     <%= form.label :location, style: "display: block" %>
-    <%= form.text_field :location %>
+    <%= form.text_field :location, 'data-action': "keydown->places#preventSubmit input->places#updateGeo", 'data-places-target': "address", placeholder:"Search a location", "autocomplete": "off" %>
+    <%= form.hidden_field(:longitude, 'data-places-target': "longitude") %>
+    <%= form.hidden_field(:latitude, 'data-places-target': "latitude") %>
   </div>
-
+  
   <div>
     <%= form.label :description, style: "display: block" %>
     <%= form.text_area :description %>

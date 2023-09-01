@@ -54,12 +54,16 @@ class GroupsController < ApplicationController
 
   # DELETE /groups/1 or /groups/1.json
   def destroy
+    memberships = Membership.all.where(group_id: @group.id)
+    memberships.delete_all
     @group.destroy
 
     respond_to do |format|
-      format.html { redirect_to groups_url, notice: "Group was successfully destroyed." }
+      format.html { redirect_to groups_url, data:{turbo_frame: "content"}, notice: "Group was successfully destroyed." }
       format.json { head :no_content }
     end
+
+    
   end
 
   private
