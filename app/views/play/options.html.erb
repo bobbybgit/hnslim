@@ -1,5 +1,5 @@
 <%= turbo_frame_tag :options do %>
-  <%= form_with url: play_results_path, :class => "play_options", method: :get, data:{turbo_frame: "results"} do |f| %>
+  <%= form_with url: play_results_path, :class => "play_options", method: :get, data:{turbo_frame: "results", controller: "counter"} do |f| %>
     <div id="all_players" class="options_group" data-controller="autosub" data-action="set-opt@window->autosub#setOptions" data-autosub-options="<%= User.user_select[1..-1] %>">
       <div class="expand_header" data-controller="expand" data-action="click->expand#expandTable">Players <i class="icon">expand_less</i></div>
         <table class="player_list">
@@ -14,11 +14,14 @@
 
           <tr>
             <td> <%= player.first_name %> <%= player.surname %>
-            <td class="center_cell"> <%= f.check_box check_attend, checked: true %> </td>
+            <td class="center_cell"> <%= f.check_box check_attend, checked: true, data:{action: "change->counter#update"} %> </td>
             <td class="center_cell"> <%= f.check_box check_collection, checked: true %> </td>
           </tr>
         <% end %>
       </table>
+      <div class = "options_group" id = "player_count">
+      Total Attendees: <%= @players.count %>
+      </div>
     </div>
     <!-- <div class="options_group">
       Total Play Time (Minutes): <%= f.number_field :time, value: "240", :class => "option_num" %>
@@ -28,8 +31,8 @@
       <div class="option_between">
         <div class="option_w_lab">Min: <%= f.number_field :min_length, value: "0", :class => "option_num" %></div>
         <div class="option_w_lab">Max: <%= f.number_field :max_length, value: "240", :class => "option_num" %></div>
-      </div><br/>
-      <div class="option_w_lab">Use recommended player counts? <%= f.check_box :rec, checked: false %></div>
+      </div>
+      
     </div>
     <!-- <div class="options_group">
       Maximum Number of Games: <%= f.number_field :num_games, value: "1", :class => "option_num" %>
@@ -45,8 +48,10 @@
       Players Per Game:
       <div class="option_between">
         <div class="option_w_lab">Min: <%= f.number_field :group_size_min, value: "2", :class => "option_num" %></div>
-        <div class="option_w_lab">Max:<%= f.number_field :group_size_max, value: "2", :class => "option_num" %></div>
+        <div class="option_w_lab">Max:<%= f.number_field :group_size_max, value: @players.count, :class => "option_num" %></div>
       </div>
+      <br><br>
+      <div class="option_w_lab">Use recommended player counts? <%= f.check_box :rec, checked: false %></div>
     </div>
     <%= f.hidden_field :exclude %>
     <br>

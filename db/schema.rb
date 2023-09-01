@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_06_141640) do
+ActiveRecord::Schema[7.0].define(version: 2023_09_01_053503) do
   create_table "collections", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "game_id", null: false
@@ -34,6 +34,30 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_06_141640) do
     t.datetime "updated_at", null: false
     t.integer "year"
     t.integer "playing_time"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.string "name"
+    t.boolean "private"
+    t.string "location"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "city"
+    t.string "country"
+    t.string "region"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "group_id", null: false
+    t.boolean "admin"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_memberships_on_group_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
   create_table "ratings", force: :cascade do |t|
@@ -63,6 +87,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_06_141640) do
 
   add_foreign_key "collections", "games"
   add_foreign_key "collections", "users"
+  add_foreign_key "memberships", "groups"
+  add_foreign_key "memberships", "users"
   add_foreign_key "ratings", "games"
   add_foreign_key "ratings", "users"
 end

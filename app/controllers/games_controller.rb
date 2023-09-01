@@ -6,11 +6,49 @@ class GamesController < ApplicationController
   def user
   end
 
+  def export_excel
+    @collections = Collection.where.not(user_id: 7).map(&:game_id)
+    @games = Game.where(id: @collections).where('weight > 1.6 or playing_time > 89')
+    @users = User.all
+    respond_to do |format|
+      format.xlsx{
+        response.headers[
+          'Content-Disposition'
+        ] = "attachment; filename=game_list.xlsx"
+        
+      }
+    end
+  end
+    
+
+   
+
   def bgg_update
+
+
 
     current_games = Game.all.by_user(current_user.id).map(&:bgg_id)
     bgg_collection_ids = []
     @error = nil
+
+    def bgg_user_init(bgg_username)
+      response = []
+      begin 
+        response = Bgg::Collection.find_by_username(current_user.bgg_username)
+      rescue StandardError => e
+        if e.message =~ /202/
+          pp "202"
+          sleep 3
+          retry
+        elsif e.message =~ /User does not exist/
+          response = "Bgg user not found, please check your profile against your BGG account"
+        else
+          response = e.message.to_s
+        end
+      end
+      pp response
+      (response.present? && response.class != String) ? (response.boardgames & response.owned).sort{ |a,b| a.name <=> b.name }.map(&:id) : response
+    end
 
     def import_games(bgg_collection_ids)
       response = []
@@ -20,9 +58,12 @@ class GamesController < ApplicationController
       rescue StandardError => e
         if e.message =~ /202/
           pp "202"
+          sleep 3
           retry
+        elsif e.message =~ /User does not exist/
+          response = "Bgg Username not found, please check your profile against your BGG account"
         else
-          pp "other"
+          response = e.message.to_s
         end
       end
       pp response
@@ -30,36 +71,52 @@ class GamesController < ApplicationController
     end
     
     bgg_collection_ids = bgg_user_init(current_user.bgg_username) if current_user.bgg_username.present?
-    pp bgg_collection_ids
-    bgg_collection_ids = bgg_collection_ids - current_games if current_games.present?
-    bgg_collection_ids.count > 0 ? games_to_add = import_games(bgg_collection_ids) : @error = "No Games Found"
-    
-    if games_to_add.present?
-      games_to_add.each_with_index do |game, i|
-        if (!Game.find_by(bgg_id: game["id"]).present?)
-          game_to_add = Game.create(
-            bgg_id: game["id"],
-            min_players: game["minplayers"][0]["value"],
-            max_players: game["maxplayers"][0]["value"],
-            min_rec_players: PollCheck.players(game).min,
-            max_rec_players: PollCheck.players(game).max,
-            image: game["image"],
-            description: game["description"],
-            name: game["name"][0]["value"],
-            year: game["yearpublished"][0]["value"],
-            playing_time: game["playingtime"][0]["value"],
-            weight: game["statistics"][0]["ratings"][0]["averageweight"][0]["value"]         )
-          else
-            game_to_add = Game.find_by(bgg_id: game["id"])
+
+    pp bgg_collection_ids.class
+
+    if bgg_collection_ids.class != String
+      old_games = current_games - bgg_collection_ids
+      bgg_collection_ids = bgg_collection_ids - current_games if current_games.present?
+      bgg_collection_ids.count > 0 ? games_to_add = import_games(bgg_collection_ids) : @error = "No Games Found"
+      
+      if games_to_add.present? && games_to_add.class != String
+        games_to_add.each_with_index do |game, i|
+          if (!Game.find_by(bgg_id: game["id"]).present?)
+            game_to_add = Game.create(
+              bgg_id: game["id"],
+              min_players: game["minplayers"][0]["value"],
+              max_players: game["maxplayers"][0]["value"],
+              min_rec_players: PollCheck.players(game).min,
+              max_rec_players: PollCheck.players(game).max,
+              image: game["image"],
+              description: game["description"],
+              name: game["name"][0]["value"],
+              year: game["yearpublished"][0]["value"],
+              playing_time: game["playingtime"][0]["value"],
+              weight: game["statistics"][0]["ratings"][0]["averageweight"][0]["value"]         )
+            else
+              game_to_add = Game.find_by(bgg_id: game["id"])
+          end
+          Collection.create(
+            user_id: current_user.id,
+            game_id: game_to_add.id
+          )
         end
-        Collection.create(
-          user_id: current_user.id,
-          game_id: game_to_add.id
-        )
+      elsif games_to_add.class == String
+        @error = games_to_add
       end
+
+      if old_games.present?
+        remove_games = Collection.where(game_id: Game.where(bgg_id: old_games).pluck(:id), user_id: current_user.id)
+        remove_games.destroy_all
+      end
+    else
+      @error = bgg_collection_ids
     end
 
-    redirect_to games_table_path(id: current_user.id), data:{turbo_frame: :games_table}
+    redirect_to games_table_path(id: current_user.id, error: @error), data:{turbo_frame: :games_table}
+  
+
   end
 
   # GET /games or /games.json
@@ -96,6 +153,7 @@ class GamesController < ApplicationController
   end
 
   def table
+    @error = params[:error] if params[:error].present?
   end
 
   # PATCH/PUT /games/1 or /games/1.json

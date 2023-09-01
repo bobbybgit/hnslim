@@ -5,4 +5,6 @@
     <%= button_to "Edit Profile", edit_user_registration_path, data:{turbo_frame: "content"}, :class => "dash_button edit_profile_button strip_link", :method => :get %>
     <%= button_to "Log Out", destroy_user_session_path, :method => :delete, turbo_frame: "content", :class => "dash_button log_out_button strip_link" %>
     </div>
+    <%= link_to "export games", export_excel_path(format: :xlsx) %>
+    <% pp "loading" %>
 <% end %>

@@ -356,7 +356,7 @@ form input[type=checkbox]{
 }
 
 .field i{
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 100;
   font-style: italic;
 }
@@ -391,7 +391,10 @@ margin: 0;
 
 /* Generic Classes  */
 
-
+.table_error{
+  color: red;
+  padding: 7px;
+}
 
 .strip_link_table{
 text-decoration: none;

@@ -21,4 +21,20 @@ export default class extends Controller {
     frame.src = url
     frame.reload()
   }
+
+  group(event){
+    var input = event.target
+    console.log("Group Clicked")
+    while (input.className != "data_row_clickable"){
+      input = input.parentElement
+      console.log("going up")
+    }
+    console.log(`ID = ${input.id}`)
+
+    let url = `/groups/${input.id}`
+    
+    let frame = document.querySelector("turbo-frame#content")
+    frame.src = url
+    frame.reload()
+  }
 }

@@ -4,11 +4,23 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  validates_presence_of :first_name
+  validates_presence_of :surname
+
   has_many :collections
   has_many :games, :through => :collections
 
   has_many :ratings
   has_many :games, :through => :ratings
+
+  has_many :memberships
+  has_many :groups, :through => :memberships
+
+  scope :members, -> (group){joins(:groups).where(groups:{id: group})}
+
+  def member?(group)
+    groups.exists?(group.id)
+  end
 
   def self.user_select
     user_select = [["All",-1]] + User.all.order(:surname).map{|user| ["#{user.first_name} #{user.surname}",user.id]}

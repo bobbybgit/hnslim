@@ -5,11 +5,8 @@
   <%= link_to root_path, :class => "tab tab_1 strip_link", 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "home", 'data-tabs-target' => "tab" do %>
     <div class="tab_text">Home</div>
   <% end %>
-  <%= link_to users_path, :method => :get, data: {turbo_frame: "content"}, :class => "tab tab_2 strip_link", 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "users", 'data-tabs-target' => "tab" do %>
-    Players
-  <% end %>
-  <%= link_to games_path, :class => "tab tab_3 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "games", 'data-tabs-target' => "tab" do %>
-    Games
+  <%= link_to groups_path, :class => "tab tab_3 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "games", 'data-tabs-target' => "tab" do %>
+    Groups
   <% end %>
   <%= link_to new_play_path, :class => "tab tab_4 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "new", 'data-tabs-target' => "tab" do %>
     New Play

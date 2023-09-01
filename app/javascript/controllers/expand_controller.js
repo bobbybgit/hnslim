@@ -50,20 +50,23 @@ export default class extends Controller {
 
       console.log(event.target)
 
-      while (!clicker.className){
-        clicker = clicker.parentElement
-      }
-      while (clicker.className != "data_row_clickable expandable_row" ){
-        clicker = clicker.parentElement
-      }
-      let expandee = clicker.nextElementSibling;
-      if (getComputedStyle(expandee).display != "none"){
-        expandee.style.display = "none";
-        expandee.style.fontWeight = "inherit";
-      }else{
-        expandee.style.display = "table-row";
-        expandee.style.fontWeight = "900";
-        console.log(expandee.style.fontWeight)
+      if (clicker.tagName.toLowerCase() != "select"){
+
+        while (!clicker.className){
+          clicker = clicker.parentElement
+        }
+        while (clicker.className != "data_row_clickable expandable_row" ){
+          clicker = clicker.parentElement
+        }
+        let expandee = clicker.nextElementSibling;
+        if (getComputedStyle(expandee).display != "none"){
+          expandee.style.display = "none";
+          expandee.style.fontWeight = "inherit";
+        }else{
+          expandee.style.display = "table-row";
+          expandee.style.fontWeight = "900";
+          console.log(expandee.style.fontWeight)
+        }
       }
 
    }

@@ -8,6 +8,7 @@ class PlayController < ApplicationController
       @players = set_players(params)
       @collection = set_collection(params)
       @collection.present? ? @games = set_games(params) : @error = "No games found, please add games or add players with existing collections"
+      params[:group_size_max] = player_count if player_count < params[:group_size_min].to_i
       @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players" if group_error_check(params)
       if !@error.present?
         @groups = set_groups(params)
@@ -60,12 +61,12 @@ class PlayController < ApplicationController
       User.where(id: user_ids)
     end
 
-    def calculate_group_scores(params)
-      scores = groups_map(params)
-    end
-
     def get_error
       @error
+    end
+
+    def calculate_group_scores(params)
+      scores = groups_map(params)
     end
 
     def groups_map(params)
@@ -73,7 +74,7 @@ class PlayController < ApplicationController
     end
 
     def games_map(group,params)
-      @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| b[1] <=> a[1]}
+      @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| [b[1],[1,4].sample] <=> [a[1],[2,3].sample]}
     end
 
     def players_check(game,group,rec)
@@ -104,19 +105,21 @@ class PlayController < ApplicationController
       end
 
       @group_combinations.each do |combo|
-       game_selection = @group_scores.select{|group| combo.include?(group.keys.first) }.flat_map{|group| group.map{|group_ids,games| [group_ids, 0, games.first]}}
-       while check_dups(game_selection)
-        next_highest = [nil,0,[0,0]]
-        highest_index = 0
-        game_selection.each_with_index do |grouping,i|
-          if @group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1][1] > next_highest[2][1]
-            next_highest = [grouping[0],grouping[1]+1,@group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1]]
-            highest_index = i 
-          end
-        end         
-        game_selection[highest_index] = next_highest
-       end
-      top_combo = game_selection if top_combo.empty? || game_selection.map{|group| group[2][1]}.sum > top_combo.map{|group| group[2][1]}.sum
+        game_selection = @group_scores.select{|group| combo.include?(group.keys.first) }.flat_map{|group| group.map{|group_ids,games| [group_ids, 0, games.first]}}
+        while check_dups(game_selection)
+          next_highest = [nil,0,[0,0]]
+          highest_index = 0
+          game_selection.each_with_index do |grouping,i|
+            if @group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1][1] > next_highest[2][1] 
+              next_highest = [grouping[0],grouping[1]+1,@group_scores[@group_scores.index{|i| i.keys.first == grouping[0]}].values[0][grouping[1]+1]]
+              highest_index = i 
+            end
+          end         
+          game_selection[highest_index] = next_highest
+        end
+        rand = [true,false].sample
+        pp "#{rand} #{game_selection[0]}"
+        top_combo = game_selection if top_combo.empty? || game_selection.map{|group| group[2][1]}.sum > top_combo.map{|group| group[2][1]}.sum || ((game_selection.map{|group| group[2][1]}.sum == top_combo.map{|group| group[2][1]}.sum) && rand)
       end
       top_combo      
 

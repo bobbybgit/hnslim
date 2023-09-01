@@ -1,0 +1,12 @@
+wb = xlsx_package.workbook
+s = wb.styles
+bold = s.add_style b: true
+@users.where.not(id: 7).each do |user|
+  wb.add_worksheet(name: "#{user.first_name}  #{user.surname}") do |sheet|
+  sheet.add_row ["Name", "Published", "Weight", "Play Time"]
+  sheet.row_style 1, bold
+    @games.each do |game|
+      sheet.add_row [game.name, game.year, game.weight, game.playing_time]
+    end
+  end
+end
