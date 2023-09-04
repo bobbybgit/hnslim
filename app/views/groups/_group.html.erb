@@ -18,6 +18,16 @@
     <tr>
       <td> <%= @group.description %></td>
     </tr>
+
+  </table>
+  <div class="expand_header" id="expand_no_margin" data-controller="expand" data-action="click->expand#expandTable">Members <i class="icon">expand_less</i></div>
+  <table class="item_show" >
+    <% @group.users.each do |user| %>
+    <tr>
+      <td> <%= user.first_name %> <%= user.surname %>
+      </td>
+    </tr>
+    <% end %>
     <tr class="header_row"><th></th></tr>
   </table>
 

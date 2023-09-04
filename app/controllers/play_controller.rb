@@ -195,11 +195,12 @@ class PlayController < ApplicationController
   end
 
   def new
-    
+    @groups = Group.joins(:memberships).where(memberships:{user_id: current_user.id})
   end
 
   def options
-    @players = User.all
+    params[:group].present? ? @players = User.where(id: Group.find_by_id(params[:group]).users.map(&:id)) : @players = User.where(id: Group.joins(:memberships).where(memberships:{user_id: current_user.id}).first.users.map(&:id))
+    
   end
 
   def results

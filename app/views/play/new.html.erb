@@ -3,6 +3,12 @@
     
 
     <div class="options_window">
+    <%= form_with url: play_options_path, :class => "table_filters", :method => :get, data:{:turbo_frame => "options", :controller => "autosub", autosave_delay_value: '1000', "action" => "sub-all@window->autosub#save"} do |form| %>
+    <div class="leftfield">
+     Select Group:
+      <%= form.select :group, options_for_select(@groups.map{ |group| [group.name,group.id]}), {}, data:{"action" => "change->autosub#save"} %>
+    </div>
+  <% end %>
       
       <%= turbo_frame_tag :options, src: play_options_path do %>
       <% end %>
