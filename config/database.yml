@@ -22,4 +22,4 @@ test:
 
 production:
   <<: *default
-  database: process.env.DATABASE_URL
+  ENV['DATABASE_URL']
