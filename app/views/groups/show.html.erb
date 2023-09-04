@@ -1,12 +1,24 @@
 <%= turbo_frame_tag :content do %>
-  <p style="color: green"><%= notice %></p>
+  <div class="center_window">
+   <p style="color: green"><%= notice %></p>
 
-  <%= render @group %>
+    <%= render @group %>
 
-  <div>
-    <%= link_to "Edit this group", edit_group_path(@group) %> |
-    <%= link_to "Back to groups", groups_path %>
+    <div>
 
-    <%= button_to "Destroy this group", @group, method: :delete %>
+        <div class="button_group">
+        <% if @group.admin_status(current_user.id) %>
+          <%= button_to "Edit", edit_group_path(@group) %>
+          <%= button_to "Delete", @group, method: :delete %>
+        <% end %>
+        <% if @group.get_membership(current_user.id) %>
+          <%= button_to "Leave Group", membership_path(@group.get_membership(current_user.id)), params:{group_id: @group.id}, method: :delete %>
+        <% else %>
+          <%= button_to "Join Group", new_membership_path, params:{group_id: @group.id}, method: :get %>
+        <% end %>
+        </div>
+      <%= button_to "Back to groups", groups_path, method: :get %>
+
+    </div>
   </div>
 <% end %>

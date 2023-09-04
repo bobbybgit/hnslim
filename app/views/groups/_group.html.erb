@@ -1,22 +1,24 @@
 <div id="<%= dom_id group %>">
-  <p>
-    <strong>Name:</strong>
-    <%= group.name %>
-  </p>
+  <table class="item_show">
+    <tr class="header_row">
+      <th> <%= @group.name %> </th>
+    </tr>
+    <tr>
+      <td> <%= @group.member_count %>
+      <% if @group.member_count == 1 %>
+       Member</td>
+       <% else %>
+       Members</td>
+       <% end %>
 
-  <p>
-    <strong>Private:</strong>
-    <%= group.private %>
-  </p>
-
-  <p>
-    <strong>Location:</strong>
-    <%= group.location %>
-  </p>
-
-  <p>
-    <strong>Description:</strong>
-    <%= group.description %>
-  </p>
+    </tr>
+    <tr>
+      <td> <%= @group.location %></td>
+    </tr>
+    <tr>
+      <td> <%= @group.description %></td>
+    </tr>
+    <tr class="header_row"><th></th></tr>
+  </table>
 
 </div>

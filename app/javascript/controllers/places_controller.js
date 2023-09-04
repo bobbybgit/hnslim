@@ -32,8 +32,12 @@ export default class extends PlacesAutocomplete {
   updateGeo(){
     
     try{
+      const options = {
+        fields: ["formatted_address", "geometry", "name"],
+        strictBounds: false,
+      };
       let inputValue = document.getElementById("location").value
-      let newPlace = new google.maps.places.autocomplete(inputValue)
+      let newPlace = new google.maps.places.autocomplete(inputValue,options)
       console.log(newPlace.getPlace)
       this.longitudeTarget.value = place.geometry.location.lng()
       this.latitudeTarget.value = place.geometry.location.lat()

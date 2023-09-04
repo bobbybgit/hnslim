@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
+  
   resources :memberships
+  get "groups/table", to: "groups#table", as: "groups_table"
   resources :groups
   get "games/export_excel", to: "games#export_excel", as: "export_excel"
   get "games/import_status", to: "games#import_status"

@@ -1,22 +1,20 @@
 <%= turbo_frame_tag :content do %>
   <p style="color: green"><%= notice %></p>
-
- <table data-controller="table-links">
-    <tr class="header_row">
-      <th>Group Name</th>
-      <th>Location</th>
-      <th>Members</th>
-
-    </tr>
+  <%= form_with url: groups_table_path, :class => "table_filters", :method => :get, data:{:turbo_frame => "groups_table", :controller => "autosub", autosave_delay_value: '1000', "action" => "sub-all@window->autosub#save"} do |form| %>
+    <div class="leftfield">
+      <%= form.select :my, options_for_select(["Show All Groups", "Show My Groups"]),{}, data:{"action" => "change->autosub#save"} %>
+    </div>  
   
-    <% @groups.each do |group| %>
-      <tr class="data_row_clickable" id="<%= group.id %>" data-action="click->table-links#group">
-        <td><%= group.name %></td>
-        <td><%= group.location %></td>
-        <td><%= @memberships.where(group_id: group.id).present? ? @memberships.where(group_id: group.id).count : "0" %> </td>
-      </tr>
-    <% end %>
-  </table>
-
-  <%= button_to "New Group", new_group_path, method: :get %>
+    <div class="leftfield">
+        Search by Group Name: 
+        <%= form.text_field :groups_filter, :autocomplete => "Off", data:{"action" => "keyup->autosub#save"} %>
+        <%= form.hidden_field :column, :value => "Name" %>
+        <%= form.hidden_field :direction %>
+      </div>
   <% end %>
+  <%= turbo_frame_tag :groups_table, src: groups_table_path do %>
+  <% end %>
+  <%= render 'pages/loader' %>
+  <%= button_to "New Group", new_group_path, method: :get %>
+ 
+<% end %>

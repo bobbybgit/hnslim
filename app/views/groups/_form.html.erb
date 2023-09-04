@@ -16,16 +16,16 @@
     <%= form.text_field :name %>
   </div>
 
-  <div>
+ 
+  <div class="check_field">
     <%= form.label :private, style: "display: block" %>
     <%= form.check_box :private %>
   </div>
+  
 
   <div data-controller="places" data-action="google-maps-callback@window->places#initAutocomplete">
     <%= form.label :location, style: "display: block" %>
-    <%= form.text_field :location, 'data-action': "keydown->places#preventSubmit input->places#updateGeo", 'data-places-target': "address", placeholder:"Search a location", "autocomplete": "off" %>
-    <%= form.hidden_field(:longitude, 'data-places-target': "longitude") %>
-    <%= form.hidden_field(:latitude, 'data-places-target': "latitude") %>
+    <%= form.text_field :location, 'data-action': "keydown->places#preventSubmit", 'data-places-target': "address", placeholder:"Search a location", "autocomplete": "off" %>
   </div>
   
   <div>

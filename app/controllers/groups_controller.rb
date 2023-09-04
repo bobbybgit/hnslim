@@ -1,9 +1,12 @@
 class GroupsController < ApplicationController
   before_action :set_group, only: %i[ show edit update destroy ]
+  before_action :filter_groups, only: %i[table]
 
   # GET /groups or /groups.json
   def index
-    @groups = Group.all
+  end
+
+  def table
     @memberships = Membership.all
   end
 
@@ -75,5 +78,28 @@ class GroupsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def group_params
       params.require(:group).permit(:name, :private, :location, :description)
+    end
+
+    def filter_groups
+
+      params[:column] = "name" if !params[:column].present?
+  
+      case params[:column].downcase
+      when "name"
+        @groups = search_groups.order(:year)
+      when "location"
+        @groups = search_groups.order(:location)
+      when "members"
+        @groups = search_groups.joins(:memberships).group("groups.id").order("count(memberships.group_id) desc")
+      else
+        @games = search_games.order(:name)
+        pp params[:column]
+      end
+      @groups = @groups.reverse if params[:direction] == "up" 
+    end
+
+    def search_groups
+      (params[:my].to_s == "Show All Groups" || !params[:my].present?) ? groups = Group.all : groups = Group.all.by_user(current_user.id)
+      params[:groups_filter].present? ? groups.group_search(params[:groups_filter]) : groups
     end
 end
