@@ -105,6 +105,8 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
+    dockerfile-rails (1.5.4)
+      rails
     erubi (1.12.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
@@ -151,6 +153,7 @@ GEM
     nokogiri (1.15.2-x86_64-linux)
       racc (~> 1.4)
     orm_adapter (0.5.0)
+    pg (1.5.4)
     public_suffix (5.0.1)
     puma (5.6.5)
       nio4r (~> 2.0)
@@ -198,6 +201,11 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 3.0)
       websocket (~> 1.0)
+    sentry-rails (5.10.0)
+      railties (>= 5.0)
+      sentry-ruby (~> 5.10.0)
+    sentry-ruby (5.10.0)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
     sprockets (4.2.0)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -248,12 +256,16 @@ DEPENDENCIES
   caxlsx_rails
   debug
   devise
+  dockerfile-rails (>= 1.5)
   importmap-rails
   jbuilder
+  pg
   puma (~> 5.0)
   rails (~> 7.0.5)
   redis (~> 4.0)
   selenium-webdriver
+  sentry-rails (~> 5.10)
+  sentry-ruby (~> 5.10)
   sprockets-rails
   sqlite3 (~> 1.4)
   stimulus-rails

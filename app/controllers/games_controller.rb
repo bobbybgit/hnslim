@@ -121,7 +121,7 @@ class GamesController < ApplicationController
 
   # GET /games or /games.json
   def index
-    @games = Game.all.order(:name)
+    @groups = Group.all
   end
 
   # GET /games/1 or /games/1.json
@@ -154,6 +154,7 @@ class GamesController < ApplicationController
 
   def table
     @error = params[:error] if params[:error].present?
+    
   end
 
   # PATCH/PUT /games/1 or /games/1.json
@@ -192,6 +193,8 @@ class GamesController < ApplicationController
 
     def filter_games
 
+      
+
       params[:column] = "name" if !params[:column].present?
   
       case params[:column].downcase
@@ -209,6 +212,8 @@ class GamesController < ApplicationController
     end
   
     def search_games
-      params[:games_filter].present? ? Game.all.by_user(params[:id]).game_search(params[:games_filter]) : params[:id].present? ? Game.all.by_user(params[:id]) : Game.all
+      params[:group].present? ? @group = Group.find_by_id(params[:group]) : @group = Group.joins(:memberships).where(memberships:{user_id: current_user.id}).first
+      @games = Game.joins(:collections).where(collections:{user_id: @group.users.map(&:id)}).order(:name)
+      params[:games_filter].present? ? @games.by_user(params[:id]).game_search(params[:games_filter]) : params[:id].present? ? @games.by_user(params[:id]) : @games
     end
 end

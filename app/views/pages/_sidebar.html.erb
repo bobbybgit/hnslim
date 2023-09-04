@@ -8,6 +8,9 @@
   <%= link_to groups_path, :class => "tab tab_3 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "games", 'data-tabs-target' => "tab" do %>
     Groups
   <% end %>
+  <%= link_to games_path, :class => "tab tab_3 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "games", 'data-tabs-target' => "tab" do %>
+    Games
+  <% end %>
   <%= link_to new_play_path, :class => "tab tab_4 strip_link", data: {turbo_frame: "content"}, 'data-action' => "click->tabs#tabSelect click->mobile#menuClose", 'data-tabs-tab-param' => "new", 'data-tabs-target' => "tab" do %>
     New Play
   <% end %>

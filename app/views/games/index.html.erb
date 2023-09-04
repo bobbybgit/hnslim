@@ -3,6 +3,11 @@
   <p style="color: green"><%= notice %></p>
   <%= form_with url: games_table_path, :class => "table_filters", :method => :get, data:{:turbo_frame => "games_table", :controller => "autosub", autosave_delay_value: '1000', "action" => "sub-all@window->autosub#save"} do |form| %>
     <div class="leftfield">
+     Select Group:
+      <%= form.select :group, options_for_select(@groups.map{ |group| [group.name,group.id]}), {}, data:{"action" => "change->autosub#save"} %>
+    </div>  
+  
+    <div class="leftfield">
       Search by Game Name: 
       <%= form.text_field :games_filter, :autocomplete => "Off", data:{"action" => "keyup->autosub#save"} %>
       <%= form.hidden_field :column, :value => "Name" %>
