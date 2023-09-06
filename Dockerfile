@@ -20,10 +20,10 @@ COPY . .
 # Precompile assets
 ENV SECRET_KEY_BASE_DUMMY = 1
 RUN bundle exec rake assets:precompile
-RUN web rake db:migrate
+
 
 # Expose the port your Rails app will listen on (assuming it's 3000)
 EXPOSE 3000
 
 # Start the Rails server when the container is run
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+CMD ["./docker/app-startup.sh","bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
