@@ -1,3 +1,5 @@
+#!/bin/bash
+
 until pg_isready -U "$DB_USERNAME" -h "$DB_HOST" ; do
     sleep 1
 done
