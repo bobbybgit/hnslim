@@ -27,4 +27,6 @@ EXPOSE 3000
 
 
 # Start the Rails server when the container is run
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000 && ./docker/app-startup.sh"]
+ENTRYPOINT ["./docker/app-startup.sh"]
+
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
