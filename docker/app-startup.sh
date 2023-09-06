@@ -1,9 +1,5 @@
 #!/bin/bash
 
-until pg_isready -U "$DB_USERNAME" -h "$DB_HOST" ; do
-    sleep 1
-done
-
 if bundle exec rails db:exists ; then
     echo 'Running database migrations...'
     bundle exec rails db:migrate
