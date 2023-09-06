@@ -23,7 +23,6 @@ RUN bundle exec rake assets:precompile
 
 # Expose the port your Rails app will listen on (assuming it's 3000)
 EXPOSE 3000
-EXPOSE $PORT
 
 # Start the Rails server when the container is run
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "$PORT"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
