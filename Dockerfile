@@ -20,6 +20,7 @@ COPY . .
 # Precompile assets
 ENV SECRET_KEY_BASE_DUMMY = 1
 RUN bundle exec rake assets:precompile
+RUN bundle exec rake db:migrate
 
 # Expose the port your Rails app will listen on (assuming it's 3000)
 EXPOSE 3000
