@@ -1,10 +1,12 @@
 <%= turbo_frame_tag :content do %>
 
   <p style="color: green"><%= notice %></p>
+  
   <%= form_with url: games_table_path, :class => "table_filters", :method => :get, data:{:turbo_frame => "games_table", :controller => "autosub", autosave_delay_value: '1000', "action" => "sub-all@window->autosub#save"} do |form| %>
+    <span data-url="<%= games_path %>" data-autosub-target="link"></span>  
     <div class="leftfield">
      Select Group:
-      <%= form.select :group, options_for_select(@groups.map{ |group| [group.name,group.id]}), {}, data:{"action" => "change->autosub#save"} %>
+      <%= form.select :group, options_for_select(@groups.map{ |group| [group.name,group.id]}.unshift(["All",-1]),params[:group]), {}, data:{"action" => "change->autosub#saveUpdateGroupMembers"} %>
     </div>  
   
     <div class="leftfield">
@@ -15,7 +17,8 @@
     </div>
     <div class="leftfield">
       Filter by User:
-      <%= form.select :id, options_for_select(User.user_select, params[:id] || -1),{}, data:{"action" => "change->autosub#save"} %>
+      <% params[:group].present? ? group_id = params[:group].to_i : group_id = -1 %>
+      <%= form.select :id, options_for_select(User.group_user_select(group_id,current_user.id), params[:id] || -1),{}, data:{"action" => "change->autosub#save"} %>
     </div>
   <% end %>
   <%= turbo_frame_tag :games_table, src: games_table_path(id: params[:id]) do %>

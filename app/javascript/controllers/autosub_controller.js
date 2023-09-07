@@ -2,7 +2,7 @@ import Autosave from 'stimulus-rails-autosave'
 
 export default class extends Autosave {
 
-  static targets = ["playerSelect"]
+  static targets = ["playerSelect", "link"]
 
   connect() {
     super.connect()
@@ -21,45 +21,20 @@ export default class extends Autosave {
     hidden.value = event.target.value
   }
 
-  updatePlayers(event){
-    let players = document.getElementById("all_players")
-    let update_quantity = event.target.value - players.children.length 
-    if (update_quantity < 0){
-      while (update_quantity < 0){
-        players.removeChild(players.lastChild)
-        update_quantity ++
-      }
-    }else if (update_quantity > 0){
-      while (event.target.value > players.children.length) {
-        var select_name = `player${players.children.length + 1}`
-        var check_name = `check${players.children.length + 1}`
-        var new_div = document.createElement("div")
-        new_div.className = "player_select"
-        var new_select = document.createElement("Select")
-        new_select.id = select_name
-        new_select.name = select_name
-        new_select.className = "player_select_dd"
-        
-        var new_check = document.createElement("input")
-        new_check.type = "checkbox"
-        new_check.id = check_name
-        new_check.name = check_name
-        new_check.checked = true
-        
-       
-        
-        new_div.appendChild(new_select)
-        new_div.appendChild(new_check)
-        players.appendChild(new_div)
-
-        const event = new CustomEvent("set-opt");
-        window.dispatchEvent(event);
-        console.log(event)
-          
-        
-      }
+  saveUpdateGroupMembers(event){
+    super.save()
+    console.log("saving")
+    let group = event.target.value
+    console.log(group)
+    var url = this.linkTarget.dataset["url"]
+    if (group > 0){
+      url = `${this.linkTarget.dataset["url"]}?group=${group}`
     }
-
+    console.log(url)
+    let frame = document.querySelector("turbo-frame#content")
+    frame.src = url
+    frame.reload()
+   
   }
 
   setOptions(){

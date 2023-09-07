@@ -268,7 +268,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   pg
-  puma (~> 5.0)
+  puma
   rails (~> 7.0.5)
   redis (~> 4.0)
   selenium-webdriver

@@ -192,28 +192,48 @@ class GamesController < ApplicationController
     end
 
     def filter_games
-
-      
+      pp params[:group]
+      pp params[:id]
+      (!params[:group].present? || params[:group] == -1) ? group = 0 : group = params[:group]
+      (!params[:id].present? || params[:id] == -1) ? id = 0 : id = params[:id]
+      filter = params[:filter]
+      pp group
+      pp id
+      pp filter
 
       params[:column] = "name" if !params[:column].present?
-  
+      @error = nil
       case params[:column].downcase
       when "year"
-        @games = search_games.order(:year)
+        @games = search_games(group,id,filter).order(:year)
       when "weight"
-        @games = search_games.order(:weight)
+        @games = search_games(group,id,filter).order(:weight)
       when "rating"
-        @games = search_games.joins(:ratings).where(ratings:{user_id: current_user.id}).order(:rating) + (search_games - search_games.joins(:ratings).where(ratings:{user_id: current_user.id}))
+        @games = search_games(group,id,filter).joins(:ratings).where(ratings:{user_id: current_user.id}).order(:rating) + (search_games - search_games.joins(:ratings).where(ratings:{user_id: current_user.id}))
       else
-        @games = search_games.order(:name)
+        @games = search_games(group,id,filter).order(:name)
         pp params[:column]
       end
       @games = @games.reverse if params[:direction] == "up" 
+      
     end
   
-    def search_games
-      params[:group].present? ? @group = Group.find_by_id(params[:group]) : @group = Group.joins(:memberships).where(memberships:{user_id: current_user.id}).first
-      @games = Game.joins(:collections).where(collections:{user_id: @group.users.map(&:id)}).order(:name)
-      params[:games_filter].present? ? @games.by_user(params[:id]).game_search(params[:games_filter]) : params[:id].present? ? @games.by_user(params[:id]) : @games
+    def search_games(group,id,filter)
+
+      pp group
+      pp id
+      
+      if (!Group.all.first.present?) || (group == 0)
+        id != 0 ? @games = Game.joins(:collections).where(collections:{user_id: id}) : @games = Game.all 
+      else
+        @group = Group.find_by_id(group)
+        id !=0 ? @games = Game.joins(:collections).where(collections:{user_id: id}) : @games = Game.joins(:collections).where(collections:{user_id: @group.pluck(:id)})
+      end
+      if filter.present?
+        @games = @games.games_search(filter)
+      end 
+      return @games
     end
+    
+
 end

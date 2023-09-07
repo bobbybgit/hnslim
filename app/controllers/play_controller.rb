@@ -195,7 +195,13 @@ class PlayController < ApplicationController
   end
 
   def new
-    @groups = Group.joins(:memberships).where(memberships:{user_id: current_user.id})
+    @error = nil
+    if Group.joins(:memberships).where(memberships:{user_id: current_user.id}).first.present?
+      @groups = Group.joins(:memberships).where(memberships:{user_id: current_user.id})
+    else
+      @error = "Please join a group before planning a play"
+    end
+
   end
 
   def options
@@ -205,12 +211,14 @@ class PlayController < ApplicationController
 
   def results
     @error = nil
+    
     @playgroup = PlayGroup.new(params)
     @rankings = @playgroup.get_final_scores
     @players = @playgroup.get_players
     @games = @playgroup.get_games
     @error = @playgroup.get_error if @playgroup.get_error.present?
     pp @error if @error.present?
+   
   end
 
   private

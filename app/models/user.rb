@@ -26,4 +26,8 @@ class User < ApplicationRecord
     user_select = [["All",-1]] + User.all.order(:surname).map{|user| ["#{user.first_name} #{user.surname}",user.id]}
   end
 
+  def self.group_user_select(group = 0, user_id)
+    group < 1 ? [["All",-1]] + User.all.map{|user| ["#{user.first_name} #{user.surname}",user.id]} : [["All",-1]] + User.joins(:memberships).where(memberships:{group_id: group}).map{|user| ["#{user.first_name} #{user.surname}",user.id]}
+  end
+
 end

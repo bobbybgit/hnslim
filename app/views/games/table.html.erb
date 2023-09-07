@@ -1,9 +1,7 @@
 <%= turbo_frame_tag :games_table do %>
-  <% if current_user.id == params[:id].to_i %>
     <div class="leftfield">
-      <%= button_to "Import Collection From Bgg", update_games_path, :class => "square_button update_small_button strip_link", :method => :get %>
+      <%= button_to "Import My Collection From Bgg", update_games_path, :class => "square_button update_small_button strip_link", :method => :get %>
     </div>
-  <% end %>
   <% if @error.present? %>
     <div class="table_error">
       <%= @error %>
