@@ -12,7 +12,7 @@ WORKDIR /app
 
 # Install Rails dependencies first to leverage Docker cache
 COPY Gemfile Gemfile.lock ./
-RUN gem install bundler  -v '2.3.26' && bundle install --jobs 4
+RUN gem install bundler  -v '2.3.26' && bundle install --jobs 4 && rails turbo:install
 
 # Copy the rest of the application's code to the container
 COPY . .

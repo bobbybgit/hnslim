@@ -86,7 +86,7 @@ class GroupsController < ApplicationController
   
       case params[:column].downcase
       when "name"
-        @groups = search_groups.order(:year)
+        @groups = search_groups.order(:name)
       when "location"
         @groups = search_groups.order(:location)
       when "members"
