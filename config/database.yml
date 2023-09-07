@@ -22,4 +22,4 @@ test:
 
 production:
   adapter: postgresql
-  url: <%= ENV['DATABASE_URL'] %>
+  url: postgres://fl0user:bkwnEOe0XT4y@ep-misty-mountain-51924354.eu-central-1.aws.neon.tech:5432/postgres?sslmode=require&options=endpoint%3Dep-misty-mountain-51924354
