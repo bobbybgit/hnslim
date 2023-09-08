@@ -288,6 +288,24 @@ padding: 0 10px;
   background-color: var(--mainLight);
 }
 
+.about_group{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 30px;
+  margin: 10px;
+  background-color: var(--mainLight);
+  font-size: 14px;
+  font-weight: 200;
+}
+
+.about_group ul{
+  margin-left: 20px;
+}
+
 .option_between{
   display: flex;
   flex-direction: row;

@@ -5,4 +5,7 @@ class PagesController < ApplicationController
 
     def dash_content
     end
+
+    def about
+    end
 end

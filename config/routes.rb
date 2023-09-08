@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   resources :games
   devise_for :users
   get "pages/dash_content", to: "pages#dash_content", as: "dash_content"
+  get "pages/about", to: "pages#about", as: "about"
   get "pages/dash", to: "pages#dash", as: "dash"
   delete "collections/:id", to: "collections#delete", as: "destroy_collection"
   get "play/new", to: "play#new", as: "new_play"
