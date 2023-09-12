@@ -22,4 +22,4 @@ test:
 
 production:
   adapter: postgresql
-  url: postgres://fl0user:bkwnEOe0XT4y@ep-misty-mountain-51924354.eu-central-1.aws.neon.tech:5432/postgres?sslmode=require&options=endpoint%3Dep-misty-mountain-51924354
+  url: postgres://fl0user:2xO9ipRuPyLf@ep-young-violet-38771146.ap-southeast-1.aws.neon.tech:5432/postgres?sslmode=require&options=endpoint%3Dep-young-violet-38771146
