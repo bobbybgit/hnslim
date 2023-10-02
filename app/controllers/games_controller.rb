@@ -30,6 +30,7 @@ class GamesController < ApplicationController
     current_games = Game.all.by_user(current_user.id).map(&:bgg_id)
     bgg_collection_ids = []
     @error = nil
+    @progress = 0
 
     def bgg_user_init(bgg_username)
       response = []
@@ -194,8 +195,8 @@ class GamesController < ApplicationController
     def filter_games
       pp params[:group]
       pp params[:id]
-      (!params[:group].present? || params[:group] == -1) ? group = 0 : group = params[:group]
-      (!params[:id].present? || params[:id] == -1) ? id = 0 : id = params[:id]
+      (!params[:group].present? || params[:group] == "-1") ? group = 0 : group = params[:group]
+      (!params[:id].present? || params[:id] == "-1") ? id = 0 : id = params[:id]
       filter = params[:filter]
       pp group
       pp id
@@ -227,7 +228,7 @@ class GamesController < ApplicationController
         id != 0 ? @games = Game.joins(:collections).where(collections:{user_id: id}) : @games = Game.all 
       else
         @group = Group.find_by_id(group)
-        id !=0 ? @games = Game.joins(:collections).where(collections:{user_id: id}) : @games = Game.joins(:collections).where(collections:{user_id: @group.pluck(:id)})
+        id !=0 ? @games = Game.joins(:collections).where(collections:{user_id: id}) : @games = Game.joins(:collections).where(collections:{user_id: @group.users.pluck(:id)})
       end
       if filter.present?
         @games = @games.games_search(filter)
