@@ -210,7 +210,7 @@ class GamesController < ApplicationController
       when "weight"
         @games = search_games(group,id,filter).order(:weight)
       when "rating"
-        @games = search_games(group,id,filter).joins(:ratings).where(ratings:{user_id: current_user.id}).order(:rating) + (search_games - search_games.joins(:ratings).where(ratings:{user_id: current_user.id}))
+        @games = search_games(group,id,filter).joins(:ratings).where(ratings:{user_id: current_user.id}).order(:rating) + (search_games(group,id,filter) - search_games(group,id,filter).joins(:ratings).where(ratings:{user_id: current_user.id}))
       else
         @games = search_games(group,id,filter).order(:name)
         pp params[:column]

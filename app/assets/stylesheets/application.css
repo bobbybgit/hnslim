@@ -170,6 +170,10 @@ turbo-frame[busy] ~ .loader{
   display: flex;
 }
 
+turbo-frame[busy]{
+  display: none;
+}
+
 .segment{
   background-color: var(--secondaryhighlight);
   width: 10px;
