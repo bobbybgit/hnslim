@@ -1,13 +1,11 @@
 class PlayGroup
   def initialize(params)
     @error = nil
+    @group_sizes = set_group_sizes(params)
+    pp @group_sizes
     @players = set_players(params)
     @collection = set_collection(params)
     @collection.present? ? @games = set_games(params) : @error = "No rated games found, please add games or add players with existing collections, or go and rate some games!"
-    # Ensure enough games for group counts
-    params[:group_size_min] = @players.count / @games.count if @games.count > 0 && params[:group_size_min].to_i <= @players.count / @games.count
-    @group_sizes = set_group_sizes(params)
-    pp @group_sizes
     params[:group_size_max] = player_count if player_count < params[:group_size_min].to_i
     @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players" if group_error_check(params)
     if !@error.present?
