@@ -133,7 +133,7 @@ class PlayGroup
   end
 
   def set_games(params)
-    @games = Game.with_ratings.where(id: @collection.pluck(:game_id)).by_players(params[:group_size_min],params[:group_size_max],params[:rec]).by_weight(params[:min_weight],params[:max_weight]).play_time(params[:min_length],params[:max_length], params[:max_length])
+    @games = Game.where(id: @collection.pluck(:game_id)).by_players(params[:group_size_min],params[:group_size_max],params[:rec]).by_weight(params[:min_weight],params[:max_weight]).play_time(params[:min_length],params[:max_length], params[:max_length])
   end
 
   def set_group_sizes(params)
