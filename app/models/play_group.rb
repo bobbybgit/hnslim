@@ -74,8 +74,8 @@ class PlayGroup
   end
 
   def games_map(group,params)
-    # binding.pry
-    @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| [b[1],[1,4].sample] <=> [a[1],[2,3].sample]}
+    ratings = Rating.where user_id: group, game_id: @games
+    @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game,ratings)]}.sort(){|a,b| [b[1],[1,4].sample] <=> [a[1],[2,3].sample]}
   end
 
   def players_check(game,group,rec)
@@ -86,13 +86,13 @@ class PlayGroup
     end
   end
 
-  def sum_ratings(group, game)
-    group.map{|player| get_rating(game.id,player)}.sum
+  def sum_ratings(group, game, ratings)
+    group.map{|player| get_rating(game.id,player,ratings)}.sum
   end
 
-  def get_rating(game_id, user_id)
-    rating = Rating.where(game_id: game_id, user_id: user_id).first.presence || 0
-    rating = rating.rating if rating != 0
+  def get_rating(game_id, user_id, ratings)
+    rating = ratings.find { |r| r.game_id == game_id && r.user_id == user_id }
+    rating = rating.rating if rating
     Rating.translate_rating(rating)
   end
 
