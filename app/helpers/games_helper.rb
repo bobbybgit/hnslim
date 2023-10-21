@@ -1,7 +1,7 @@
 module GamesHelper
 
   def rated_check(game, user)
-    game.ratings.where(user_id: user).first.present? ? game.ratings.where(user_id: user).first.rating : "8"
+    current_user.ratings.find { |r| r.game_id == game.id } || "8"
   end
 
 end

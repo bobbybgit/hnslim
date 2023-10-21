@@ -6,6 +6,7 @@ class PlayGroup
     @players = set_players(params)
     @collection = set_collection(params)
     @collection.present? ? @games = set_games(params) : @error = "No rated games found, please add games or add players with existing collections, or go and rate some games!"
+    @ratings = Rating.where(user_id: @players, game_id: @games) if @games
     params[:group_size_max] = player_count if player_count < params[:group_size_min].to_i
     @error = "Group sizes not achievable with player count, please either amend group sizes or add or remove players" if group_error_check(params)
     if !@error.present?
@@ -72,8 +73,7 @@ class PlayGroup
   end
 
   def games_map(group,params)
-    ratings = Rating.where user_id: group, game_id: @games
-    @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game,ratings)]}.sort(){|a,b| [b[1],[1,4].sample] <=> [a[1],[2,3].sample]}
+    @games.select{|g| players_check(g,group,params[:rec])}.map{ |game| [game.id, sum_ratings(group,game)]}.sort(){|a,b| [b[1],[1,4].sample] <=> [a[1],[2,3].sample]}
   end
 
   def players_check(game,group,rec)
@@ -84,12 +84,12 @@ class PlayGroup
     end
   end
 
-  def sum_ratings(group, game, ratings)
-    group.map{|player| get_rating(game.id,player,ratings)}.sum
+  def sum_ratings(group, game)
+    group.map{|player| get_rating(game.id,player)}.sum
   end
 
-  def get_rating(game_id, user_id, ratings)
-    rating = ratings.find { |r| r.game_id == game_id && r.user_id == user_id }
+  def get_rating(game_id, user_id)
+    rating = @ratings.find { |r| r.game_id == game_id && r.user_id == user_id }
     rating = rating.rating if rating
     Rating.translate_rating(rating)
   end
@@ -178,7 +178,6 @@ class PlayGroup
   end
 
   def set_player_scores
-    @ratings = Rating.where user_id: @players, game_id: @games
     @games.each_with_object(nested_hash) do |game, scores|
       scores[game.id][:min_players] = game.min_players
       scores[game.id][:max_players] = game.max_players
