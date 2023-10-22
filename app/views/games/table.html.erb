@@ -19,7 +19,7 @@
           <td><%= game.name %></td>
           <td class="center_cell"><%= game.year %></td>
           <td class="center_cell"><%= game.weight.round(1) %></td>
-          <td><%= form_with url: new_rating_path, data:{:controller => "autosub", turbo_frame: "hidden"} do |f| %><%= f.hidden_field :game_id, :value => game.id %><%= f.hidden_field :rating, :value => rated_check(game,current_user.id) %><%= f.select :rating, options_for_select(Rating.rating_values, rated_check(game,current_user.id)), {}, data:{:action => "change->autosub#saveUpdateRating"} %><% end %></td>
+          <td><%= form_with url: new_rating_path, data:{:controller => "autosub", turbo_frame: "hidden"} do |f| %><%= f.hidden_field :game_id, :value => game.id %><%= f.hidden_field :rating, :value => rated_check(game) %><%= f.select :rating, options_for_select(Rating.rating_values, rated_check(game)), {}, data:{:action => "change->autosub#saveUpdateRating"} %><% end %></td>
         </tr>
         <tr class="panel">
           <td class="game_panel" colspan="4">
