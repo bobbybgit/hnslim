@@ -154,8 +154,8 @@ class GamesController < ApplicationController
   end
 
   def table
+    @ratings = current_user.ratings.map { |r| [r.game_id, r.rating] }.to_h
     @error = params[:error] if params[:error].present?
-    
   end
 
   # PATCH/PUT /games/1 or /games/1.json
